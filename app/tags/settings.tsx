@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, Alert, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Link,router } from 'expo-router';
+import { Link, router, useNavigation } from "expo-router";
 
 export default function LoginScreen({}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigation = useNavigation();
 
   const handleLogin = () => {
     console.log('Email:', email);
     console.log('Password:', password);
     if (email === "q" && password === "1") {
-      router.replace('/home');
+      router.replace("/tags/home");
     } else {
       Alert.alert("Vui lòng nhập chính xác!");
     }
