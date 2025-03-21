@@ -1,6 +1,9 @@
 {
+  "moduleResolution": "node",
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "strict": true,
     "paths": {
       "@/*": [
@@ -9,9 +12,10 @@
     }
   },
   "include": [
+    "global.d.ts", "server.ts",
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "config/database.ts"  ]
 }
