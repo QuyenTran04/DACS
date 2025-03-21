@@ -1,10 +1,10 @@
-import { Stack ,router} from 'expo-router';
+import { Stack } from 'expo-router';
 import { Button, Text, Image, StyleSheet } from 'react-native';
 import { useState } from 'react';
 
 function LogoTitle() {
   return (
-    <Image style={styles.image} source={require("../../assets/images/logo.png")} />
+    <Image style={styles.image} source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }} />
   );
 }
 
@@ -16,10 +16,10 @@ export default function Home() {
       <Stack.Screen
         options={{
           headerTitle: props => <LogoTitle {...props} />,
-          headerRight: () => <Button onPress={() => router.replace("/tags/settings")} title="Đăng nhập/Đăng ký" />,
+          headerRight: () => <Button onPress={() => setCount(c => c +1)} title="Update count" />,
         }}
       />
-      
+      <Text>Count: {count}</Text>
     </>
   );
 }

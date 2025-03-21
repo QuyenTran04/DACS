@@ -1,3 +1,4 @@
+<<<<<<< HEAD:app/tags/settings.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -22,6 +23,23 @@ const LoginScreen: React.FC = () => {
       }
     } catch (error) {
       Alert.alert(error.message || "Đăng nhập thất bại!");
+=======
+import React, { useState } from 'react';
+import { View, Text, Alert, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Link,router } from 'expo-router';
+
+export default function LoginScreen({}) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    console.log('Email:', email);
+    console.log('Password:', password);
+    if (email === "q" && password === "1") {
+      router.replace('/home');
+    } else {
+      Alert.alert("Vui lòng nhập chính xác!");
+>>>>>>> parent of fef848b (test):app/login.tsx
     }
   };
 
