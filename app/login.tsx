@@ -1,45 +1,40 @@
-<<<<<<< HEAD:app/tags/settings.tsx
 import React, { useState } from "react";
 import {
   View,
-  Text,
-  Alert,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Text,
+  Alert,
 } from "react-native";
-import { router } from "expo-router";
-import { authenticateUser } from "../../services/authService";
 
-const LoginScreen: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+const Login = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleLogin = async () => {
+  const handleChange = (name: string, value: string) => {
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async () => {
     try {
-      const response = await authenticateUser(email, password);
-      if (response.success) {
-        router.replace("/tags/home");
+      const response = await fetch("http://192.168.1.8:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        Alert.alert("Đăng nhập thành công!");
+        console.log("Token:", data.token);
+      } else {
+        Alert.alert("Lỗi", data.message);
       }
     } catch (error) {
-      Alert.alert(error.message || "Đăng nhập thất bại!");
-=======
-import React, { useState } from 'react';
-import { View, Text, Alert, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Link,router } from 'expo-router';
-
-export default function LoginScreen({}) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = () => {
-    console.log('Email:', email);
-    console.log('Password:', password);
-    if (email === "q" && password === "1") {
-      router.replace('/home');
-    } else {
-      Alert.alert("Vui lòng nhập chính xác!");
->>>>>>> parent of fef848b (test):app/login.tsx
+      console.error("Lỗi:", error);
     }
   };
 
@@ -49,28 +44,33 @@ export default function LoginScreen({}) {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
+        onChangeText={(text) => handleChange("email", text)}
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
+        placeholder="Mật khẩu"
         secureTextEntry
+        onChangeText={(text) => handleChange("password", text)}
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { fontSize: 29, marginBottom: 20, textAlign: "center", color: "blue" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+    //backgroundColor: 'blue',
+  },
+  title: {
+    fontSize: 29,
+    marginBottom: 20,
+    textAlign: "center",
+    color: "blue",
+  },
   input: {
     height: 45,
     borderColor: "gray",
@@ -82,11 +82,43 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#007BFF",
     padding: 12,
-    borderRadius: 15,
+    borderRadius: 7,
     alignItems: "center",
     marginBottom: 10,
   },
-  buttonText: { color: "white", fontSize: 16 },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  optionsContainer: {
+    alignItems: "center",
+    marginBottom: 50,
+  },
+  optionText: {
+    marginBottom: 10,
+  },
+  socialButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  socialButton: {
+    backgroundColor: "#4267B2",
+    padding: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  socialButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  forgotPassword: {
+    textAlign: "center",
+    color: "#007BFF",
+    marginBottom: 10,
+  },
+  signUp: {
+    textAlign: "center",
+    color: "#007BFF",
+  },
 });
-
-export default LoginScreen;
+export default Login;
