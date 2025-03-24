@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 
-// Middleware xác thực người dùng
 const authMiddleware = (req, res, next) => {
   const token = req.header("Authorization");
 
@@ -15,14 +14,13 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// Middleware kiểm tra role
 const checkRole = (roles) => (req, res, next) => {
   if (!roles.includes(req.user.role)) {
     return res.status(403).json({ message: "Bạn không có quyền truy cập" });
   }
   next();
 };
-// API chỉ cho admin xem danh sách user
+
 router.get("/", authMiddleware, checkRole(["admin"]), async (req, res) => {
   try {
     const users = await User.find();

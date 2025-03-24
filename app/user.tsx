@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 function LogoTitle() {
   return (
-    <Image style={styles.image} source={require ('../../assets/images/icon.png')} />
+    <Image style={styles.image} source={require ('../assets/images/icon.png')} />
   );
 }
 
@@ -18,7 +18,7 @@ export default function Home() {
           headerTitle: (props) => <LogoTitle {...props} />,
           headerRight: () => (
             <Button
-              onPress={() => router.replace("/home/login")}
+              onPress={() => router.replace("/login")}
               title="Đăng nhập"
             />
           ),

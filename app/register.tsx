@@ -7,7 +7,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import styles from "../styles";
+import styles from "./styles";
 
 const Register = () => {
   const [formData, setFormData] = useState({

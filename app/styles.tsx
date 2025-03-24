@@ -5,6 +5,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
+    //backgroundColor: 'blue',
   },
   title: {
     fontSize: 29,
@@ -23,13 +24,43 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#007BFF",
     padding: 12,
-    borderRadius: 7,
+    borderRadius: 15,
     alignItems: "center",
     marginBottom: 10,
   },
   buttonText: {
     color: "white",
     fontSize: 16,
+  },
+  optionsContainer: {
+    alignItems: "center",
+    marginBottom: 50,
+  },
+  optionText: {
+    marginBottom: 10,
+  },
+  socialButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  socialButton: {
+    backgroundColor: "#4267B2",
+    padding: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  socialButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  forgotPassword: {
+    textAlign: "center",
+    color: "#007BFF",
+    marginBottom: 10,
+  },
+  signUp: {
+    textAlign: "center",
+    color: "#007BFF",
   },
 });
 

@@ -8,7 +8,7 @@ const router = express.Router();
 // API đăng ký tài khoản
 router.post("/register", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email đã được sử dụng" });
@@ -27,6 +27,7 @@ router.post("/register", async (req, res) => {
 
     res.status(201).json({ message: "Đăng ký thành công", user: newUser });
   } catch (error) {
+    console.error("Lỗi khi đăng ký:", error);
     res.status(500).json({ message: "Lỗi server", error });
   }
 });
@@ -41,11 +42,14 @@ router.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Sai mật khẩu!" });
 
-    const token = jwt.sign({ id: user._id , role: user.role }, "SECRET_KEY", {
+    const token = jwt.sign({ id: user._id, role: user.role }, "SECRET_KEY", {
       expiresIn: "1h",
     });
 
-    res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+    res.json({
+      token,
+      user: { id: user._id, username: user.username, email: user.email },
+    });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server" });
   }
