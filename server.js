@@ -6,10 +6,8 @@ const cors = require("cors");
 const authRoutes = require("./backend/routes/authRoutes");
 
 const app = express();
-
-// Cấu hình middleware
-app.use(express.json()); // Cho phép đọc JSON từ request body
-app.use(cors()); // Bật CORS cho frontend gọi API
+app.use(express.json());
+app.use(cors()); 
 
 // Kết nối MongoDB
 mongoose
