@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/account");
 const jwt = require("jsonwebtoken");
 const account = require("../models/account");
+const account = require("../models/account");
 
 const router = express.Router();
 
@@ -85,15 +86,16 @@ router.put("../models/account", async (req, res) => {
   }
 });
 //Xoa
-router.delete("../models/account", async (req, res) => {
+router.delete("../models/account/:_id", async (req, res) => {
   try {
-    const account = await User.findById(req.params._id);
-    if (!account) {
-      return res.status(404).json({ message: "Tài khoản không tồn tại!" });
-    }
-    account.username = username || account.username;
-    account.email = email || account.email;
-    if()
+    const account = await account.findById(req.params._id);
+    if (!account)
+      return res.status(404).json({ message: "Người dùng không tồn tại!" });
+
+    await account.deleteOne();
+    res.json({ message: "Xóa người dùng thành công!" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server!" });
   }
 });
 module.exports = router;
