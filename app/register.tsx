@@ -46,7 +46,7 @@ const Register = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "http://192.168.3.34:5000/api/auth/register",
+        "http://192.168.3.35:5000/api/auth/register",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

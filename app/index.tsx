@@ -15,7 +15,6 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const handleSearch = () => {
-    
   };
 
   return (

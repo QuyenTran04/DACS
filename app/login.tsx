@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, TextInput, TouchableOpacity, Text, Alert } from "react-native";
 import styles from "./styles";
+//import register from "./register";
 import { Stack, router } from "expo-router";
 
 const Login = () => {
@@ -15,7 +16,7 @@ const Login = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://192.168.3.34:5000/api/auth/login", {
+      const response = await fetch("http://192.168.3.35:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
