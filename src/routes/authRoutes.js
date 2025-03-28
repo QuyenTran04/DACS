@@ -2,8 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/account");
 const jwt = require("jsonwebtoken");
-const account = require("../models/account");
-const account = require("../models/account");
+const Account = require("../models/account");
 
 const router = express.Router();
 
@@ -11,13 +10,13 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
-    const existingUser = await User.findOne({ email });
+    const existingUser = await Account.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email đã được sử dụng" });
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newUser = new User({
+    const newUser = new Account({
       username,
       email,
       password: hashedPassword,
@@ -35,7 +34,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await Account.findOne({ email });
     if (!user) return res.status(400).json({ message: "Email không tồn tại!" });
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -54,9 +53,9 @@ router.post("/login", async (req, res) => {
   }
 });
 //Lay danh sach
-router.get("../models/account", async (res, req) => {
+router.get("/accounts", async (req, res) => {
   try {
-    const users = await User.find().select("-password"); // Không gửi password
+    const users = await Account.find().select("-password"); // Không gửi password
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: "Lỗi server!" });
@@ -65,30 +64,39 @@ router.get("../models/account", async (res, req) => {
 
 
 //Sua
-router.put("../models/account", async (req, res) => {
+router.put("/accounts/:id", async (req, res) => {
+  const {id} = req.params;
   const { username, email, password } = req.body;
-  try {
-    const account = await account.findById(req.params._id)
-    if (!account)
-      return res.status(404).json({ message: "Tài khoản không tồn tại!" });
-    account.username = username || account.username;
-    account.email = email || account.email;
 
+  try {
+    if (!username && !email && !password) {
+      return res.status(400).json({ message: "Không có dữ liệu" });
+    }
+    const account = await Account.findById(id);
+    if (!account) {
+      return res.status(404).json({ message: "Tài khoản không tồn tại!" });
+    }
+    if (username) account.username = username;
+    if (email) account.email = email;
     if (password) {
       const salt = await bcrypt.genSalt(10);
       account.password = await bcrypt.hash(password, salt);
     }
 
-    await user.save();
-    res.json({ message: "Cập nhật thông tin thành công!" });
+    await account.save();
+    res.json({ message: "Cập nhật thông tin thành công!", account });
   } catch (error) {
+    console.error("Lỗi cập nhật tài khoản:", error);
     res.status(500).json({ message: "Lỗi server!" });
   }
 });
+
+module.exports = router;
+
 //Xoa
-router.delete("../models/account/:_id", async (req, res) => {
+router.delete("/accounts/:id", async (req, res) => {
   try {
-    const account = await account.findById(req.params._id);
+    const account = await Account.findById(req.params.id);
     if (!account)
       return res.status(404).json({ message: "Người dùng không tồn tại!" });
 

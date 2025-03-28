@@ -21,7 +21,6 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
       const data = await response.json();
       if (response.ok) {
         Alert.alert("Đăng nhập thành công!");

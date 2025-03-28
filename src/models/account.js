@@ -11,6 +11,6 @@ const accountSchema = new mongoose.Schema({
 });
 accountSchema.plugin(AutoIncrement, { inc_field: "_id" });
 
-const account = mongoose.model("account", accountSchema);
+const Account = mongoose.model("Account", accountSchema);
 
-module.exports = account;
+module.exports = Account;
