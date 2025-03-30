@@ -1,13 +1,25 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const Account = require("../models/account");
 const Admin = require("../controllers/admin");
-
 const router = express.Router();
+const role = require("../middlewares/authMiddleware");
 
-router.get("/accounts", Admin.listUser);
-router.put("/accounts/:id", Admin.updateUser);
-router.delete("accounts/:id", Admin.deleteUser);
-
+router.get(
+  "/accounts",
+  role.authenticateToken,
+  role.authorizeRole(["admin"]),
+  Admin.listUser
+);
+router.put(
+  "/accounts/:id",
+  role.authenticateToken,
+  role.authorizeRole(["admin"]),
+  Admin.updateUser
+);
+router.delete(
+  "/accounts/:id",
+  role.authenticateToken,
+  role.authorizeRole(["admin"]),
+  Admin.deleteUser
+);
+module.exports = router;
 
