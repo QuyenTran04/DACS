@@ -21,5 +21,6 @@ router.delete(
   role.authorizeRole(["admin"]),
   Admin.deleteUser
 );
+
 module.exports = router;
 
