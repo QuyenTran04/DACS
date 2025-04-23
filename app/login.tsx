@@ -112,15 +112,15 @@ const Login = () => {
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
       <View style={styles.optionsContainer}>
-        <Text style={styles.optionText}>Hoặc đăng nhập với</Text>
-        <View style={styles.socialButtons}>
-          <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert("Tính năng đang phát triển")}>
-            <Text style={styles.socialButtonText}>Facebook</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialButton} onPress={handleLoginWithGoogle}>
-            <Text style={styles.socialButtonText}>Google</Text>
-          </TouchableOpacity>
-        </View>
+         <Text style={styles.optionText}>Hoặc đăng nhập với</Text>
+         <View style={styles.socialButtons}>
+           <TouchableOpacity
+             style={styles.socialButton}
+             onPress={handleLoginWithGoogle}
+           >
+              <Text style={styles.socialButtonText}>Google</Text>
+           </TouchableOpacity>
+         </View>
       </View>
       <TouchableOpacity onPress={() => Alert.alert("Tính năng khôi phục mật khẩu đang được phát triển")}>
         <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
