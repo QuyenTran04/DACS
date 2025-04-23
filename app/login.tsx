@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { View, TextInput, TouchableOpacity, Text, Alert } from "react-native";
 import styles from "./styles";
-import { Stack, router } from "expo-router";
+import { router } from "expo-router";
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { User } from '@react-native-google-signin/google-signin';
 
 GoogleSignin.configure({
   scopes: ['https://www.googleapis.com/auth/drive'],
@@ -47,24 +46,13 @@ const Login = () => {
   const handleLoginWithGoogle = async () => {
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-  
-      // Get user info from Google
       const userInfo = await GoogleSignin.signIn();
-  
-      // Log the complete object to see its structure
       console.log("--- Google User Info Object ---");
       console.log(JSON.stringify(userInfo, null, 2));
       console.log("-------------------------------");
-  
-      // Use type assertion to bypass TypeScript checking
-      const userInfoAny = userInfo as any;
-      
-      // Display a generic success message without trying to access specific properties yet
-      Alert.alert("Google Sign-In Success!", "Authentication successful");
-  
-      // Get the idToken - use optional chaining to be safe
-      const idToken = userInfoAny.idToken;
-  
+
+      const idToken = (userInfo as any).idToken;
+
       if (idToken) {
         await fetch("http://192.168.3.35:5000/api/auth/google", {
           method: "POST",
@@ -72,24 +60,29 @@ const Login = () => {
           body: JSON.stringify({ token: idToken }),
         });
         console.log("Sent idToken to backend.");
+        Alert.alert("Google Sign-In Success!", "Authentication successful");
       } else {
         console.warn("idToken not found in userInfo object.");
-        Alert.alert("Error", "Could not retrieve authentication token from Google.");
+        Alert.alert("Error", "Không lấy được token từ Google.");
       }
     } catch (error: any) {
-      // Error handling remains the same
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log("User cancelled Google sign-in.");
+        console.log("Người dùng đã hủy đăng nhập Google.");
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log("Sign-in in progress...");
+        console.log("Đăng nhập đang được thực hiện...");
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert("Error", "Google Play Services not available or outdated.");
+        Alert.alert("Lỗi", "Google Play Services không khả dụng hoặc đã cũ.");
       } else {
-        Alert.alert("Error", "An error occurred during Google sign-in.");
         console.error("Google sign-in error:", error);
+        Alert.alert("Lỗi", "Đã xảy ra lỗi khi đăng nhập với Google.");
       }
     }
   };
+
+  const forgotPassword = () => {
+    router.push("/_forgotPassword"); // Thay đổi theo cấu trúc thư mục của bạn
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign In</Text>
@@ -111,24 +104,25 @@ const Login = () => {
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
+
       <View style={styles.optionsContainer}>
-         <Text style={styles.optionText}>Hoặc đăng nhập với</Text>
-         <View style={styles.socialButtons}>
-           <TouchableOpacity
-             style={styles.socialButton}
-             onPress={handleLoginWithGoogle}
-           >
-              <Text style={styles.socialButtonText}>Google</Text>
-           </TouchableOpacity>
-         </View>
+        <Text style={styles.optionText}>Hoặc đăng nhập với</Text>
+        <View style={styles.socialButtons}>
+          <TouchableOpacity
+            style={styles.socialButton}
+            onPress={handleLoginWithGoogle}
+          >
+            <Text style={styles.socialButtonText}>Google</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <TouchableOpacity onPress={() => Alert.alert("Tính năng khôi phục mật khẩu đang được phát triển")}>
+
+      <TouchableOpacity onPress={forgotPassword}>
         <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
       </TouchableOpacity>
+
       <TouchableOpacity onPress={() => router.replace("/register")}>
-        <Text style={styles.signUp}>
-          Chưa có tài khoản? Đăng ký
-        </Text>
+        <Text style={styles.signUp}>Chưa có tài khoản? Đăng ký</Text>
       </TouchableOpacity>
     </View>
   );
