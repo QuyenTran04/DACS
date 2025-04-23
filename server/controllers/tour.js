@@ -1,5 +1,4 @@
 const Tour = require("../models/tour");
-const mongoose = require("mongoose");
 
 exports.createTour = async (req, res) => {
   try {
