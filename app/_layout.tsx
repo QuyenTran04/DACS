@@ -24,10 +24,10 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="user"
         options={{
-          //headerShown: false,
           title: "Hồ sơ",
           tabBarIcon: ({ color }) => (
             <FontAwesome size={28} name="user" color={color} />
@@ -38,7 +38,7 @@ export default function TabLayout() {
         name="login"
         options={{
           headerShown: false,
-          href: null,
+          href: null,  // Removing the href makes it not navigate anywhere
           title: "Tài khoản",
           tabBarIcon: ({ color }) => (
             <FontAwesome size={28} name="user" color={color} />
@@ -59,13 +59,24 @@ export default function TabLayout() {
         name="register"
         options={{
           headerShown: false,
-          //href: null,
           title: "Tài khoản",
           tabBarIcon: ({ color }) => (
             <FontAwesome size={28} name="user" color={color} />
           ),
         }}
       />
+        <Tabs.Screen
+          name="_forgotPassword"  // Tên ban đầu của file
+          options={{
+            headerShown: false,
+            href: null,  // Removing the href makes it not navigate anywhere
+            title: "Tài khoản",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome size={28} name="user" color={color} />
+            )
+          }}
+        />      
     </Tabs>
+    
   );
 }

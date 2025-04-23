@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, TextInput, TouchableOpacity, Text, Alert } from "react-native";
 import styles from "./styles";
-import { Stack, router } from "expo-router";
+import { router } from "expo-router";
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 GoogleSignin.configure({
@@ -51,10 +51,7 @@ const Login = () => {
       console.log(JSON.stringify(userInfo, null, 2));
       console.log("-------------------------------");
 
-      const userInfoAny = userInfo as any;
-      Alert.alert("Google Sign-In Success!", "Authentication successful");
-
-      const idToken = userInfoAny.idToken;
+      const idToken = (userInfo as any).idToken;
 
       if (idToken) {
         await fetch("http://192.168.3.35:5000/api/auth/google", {
@@ -63,49 +60,27 @@ const Login = () => {
           body: JSON.stringify({ token: idToken }),
         });
         console.log("Sent idToken to backend.");
+        Alert.alert("Google Sign-In Success!", "Authentication successful");
       } else {
         console.warn("idToken not found in userInfo object.");
-        Alert.alert("Error", "Could not retrieve authentication token from Google.");
+        Alert.alert("Error", "Không lấy được token từ Google.");
       }
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log("User cancelled Google sign-in.");
+        console.log("Người dùng đã hủy đăng nhập Google.");
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log("Sign-in in progress...");
+        console.log("Đăng nhập đang được thực hiện...");
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert("Error", "Google Play Services not available or outdated.");
+        Alert.alert("Lỗi", "Google Play Services không khả dụng hoặc đã cũ.");
       } else {
-        Alert.alert("Error", "An error occurred during Google sign-in.");
         console.error("Google sign-in error:", error);
+        Alert.alert("Lỗi", "Đã xảy ra lỗi khi đăng nhập với Google.");
       }
     }
   };
 
-  // ✅ Forgot password handler
-  const forgotPassword = async () => {
-    if (!formData.email) {
-      Alert.alert("Thông báo", "Vui lòng nhập email trước.");
-      return;
-    }
-
-    try {
-      const response = await fetch("http://192.168.3.35:5000/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert("Thành công", "Email đặt lại mật khẩu đã được gửi.");
-      } else {
-        Alert.alert("Lỗi", data.message || "Không thể gửi email đặt lại mật khẩu.");
-      }
-    } catch (error) {
-      console.error("Lỗi gửi yêu cầu quên mật khẩu:", error);
-      Alert.alert("Lỗi", "Đã xảy ra lỗi khi gửi yêu cầu.");
-    }
+  const forgotPassword = () => {
+    router.push("/_forgotPassword"); // Thay đổi theo cấu trúc thư mục của bạn
   };
 
   return (
@@ -141,6 +116,7 @@ const Login = () => {
           </TouchableOpacity>
         </View>
       </View>
+
       <TouchableOpacity onPress={forgotPassword}>
         <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
       </TouchableOpacity>
