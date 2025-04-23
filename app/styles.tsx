@@ -40,19 +40,38 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   socialButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 10,
   },
+  
   socialButton: {
-    backgroundColor: "#4267B2",
-    padding: 10,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
+  
+  googleIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+  
   socialButtonText: {
-    color: "white",
     fontSize: 16,
+    color: "#000",
+    fontWeight: "500",
   },
+  
   forgotPassword: {
     textAlign: "center",
     color: "#007BFF",
