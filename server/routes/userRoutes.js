@@ -5,5 +5,5 @@ const router = express.Router();
 
 router.post("/register", User.registerUser);
 router.post("/login",User.loginUser);
-
+router.post("/google", User.googleLogin);
 module.exports = router;
