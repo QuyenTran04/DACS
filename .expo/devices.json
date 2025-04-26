@@ -1,6 +1,13 @@
 {
   "devices": [
     {
+<<<<<<< Updated upstream
+=======
+      "installationId": "ee7aaa41-0a92-427d-8c74-fd3dfcc632c7",
+      "lastUsed": 1745683503617
+    },
+    {
+>>>>>>> Stashed changes
       "installationId": "7d1ea2a7-c011-452b-8b8a-3ade6a7c4489",
       "lastUsed": 1745383238267
     },
