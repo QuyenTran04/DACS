@@ -2,14 +2,18 @@ import React, { useState } from "react";
 import { View, TextInput, TouchableOpacity, Text, Alert } from "react-native";
 import styles from "./styles";
 import { router } from "expo-router";
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import {
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 
 GoogleSignin.configure({
-  scopes: ['https://www.googleapis.com/auth/drive'],
-  webClientId: '449265858686-joaftiof1ptd8t2ds51kj0lg90p0lism.apps.googleusercontent.com',
+  scopes: ["https://www.googleapis.com/auth/drive"],
+  webClientId:
+    "449265858686-joaftiof1ptd8t2ds51kj0lg90p0lism.apps.googleusercontent.com",
   offlineAccess: true,
   forceCodeForRefreshToken: true,
-  profileImageSize: 120
+  profileImageSize: 120,
 });
 
 const Login = () => {
@@ -45,7 +49,9 @@ const Login = () => {
 
   const handleLoginWithGoogle = async () => {
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
       const userInfo = await GoogleSignin.signIn();
       console.log("--- Google User Info Object ---");
       console.log(JSON.stringify(userInfo, null, 2));

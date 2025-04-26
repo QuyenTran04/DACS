@@ -77,3 +77,5 @@ exports.createBooking = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi tạo booking hoặc thanh toán" });
   }
 };
+
+//hủy booking
