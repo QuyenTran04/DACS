@@ -2,6 +2,7 @@
   "expo": {
     "name": "Quyenne",
     "slug": "Quyenne",
+    "owner": "dacs_mobileapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
@@ -16,6 +17,7 @@
       }
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
