@@ -5,26 +5,38 @@ exports.createTour = async (req, res) => {
     const {
       title,
       description,
-      location,
+      address,
+      locationId,
       price,
       duration,
       availableDates,
       maxGuests,
     } = req.body;
-        
+
+    const location = await Location.findById(locationId);
+    if (!location) {
+      return res
+        .status(400)
+        .json({ message: "Không tìm thấy tỉnh/thành đã chọn." });
+    }
+    // Xử lý danh sách ảnh
     const imagePaths = req.files.map((file) => "/uploads/" + file.filename);
+
     const newTour = new Tour({
       providerId: req.user.id,
       title,
       description,
-      location,
+      address, 
+      location: locationId, 
       price,
       duration,
       images: imagePaths,
       availableDates,
       maxGuests,
     });
+
     await newTour.save();
+
     res.status(201).json({ message: "Tạo tour thành công!", tour: newTour });
   } catch (error) {
     console.error("Lỗi tạo tour:", error);
@@ -45,13 +57,33 @@ exports.getTour = async (req, res) => {
   }
 };
 
+
+exports.getToursByLocation = async (req, res) => {
+  try {
+    const { locationId } = req.params; 
+
+    const tours = await Tour.find({ location: locationId })
+      .populate("location", "name") 
+      .populate("providerId", "name");
+
+    res.status(200).json(tours);
+  } catch (error) {
+    console.error("Lỗi lấy danh sách tour theo location:", error);
+    res.status(500).json({ message: "Lỗi server!", error: error.message });
+  }
+};
+
+
 exports.updateTour = async (req, res) => {
   try {
     const providerID = req.user.id;
+    const { tourId } = req.params; 
+
     const {
       title,
       description,
-      location,
+      address,
+      locationId,
       price,
       duration,
       availableDates,
@@ -66,7 +98,8 @@ exports.updateTour = async (req, res) => {
     const updatedFields = {
       title,
       description,
-      location,
+      address,
+      location: locationId,
       price,
       duration,
       availableDates,
@@ -77,25 +110,24 @@ exports.updateTour = async (req, res) => {
     }
 
     const updatedTour = await Tour.findOneAndUpdate(
-      { providerId: providerID },
+      { _id: tourId, providerId: providerID }, 
       updatedFields,
       { new: true }
     );
-
     if (!updatedTour) {
       return res
         .status(404)
         .json({ message: "Không tìm thấy tour để cập nhật." });
     }
-
-    res
-      .status(200)
-      .json({ message: "Cập nhật tour thành công!", tour: updatedTour });
+    res.status(200).json({ message: "Cập nhật tour thành công!", tour: updatedTour });
   } catch (error) {
     console.error("Lỗi cập nhật tour:", error);
     res.status(500).json({ message: "Lỗi server!", error: error.message });
   }
 };
+
+
+
 exports.deleteTour = async (req, res) => {
   try {
     const providerId = req.user.id;
