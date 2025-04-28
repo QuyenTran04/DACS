@@ -1,24 +1,25 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    //backgroundColor: 'blue',
+    backgroundColor: '#f5f5f5', // light background color
   },
   title: {
     fontSize: 29,
     marginBottom: 20,
     textAlign: "center",
-    color: "blue",
+    color: "#007BFF", // Reuse primary color
   },
   input: {
     height: 45,
     borderColor: "gray",
     borderWidth: 1,
     marginBottom: 15,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20, // Increase padding for ease of use
     borderRadius: 5,
   },
   button: {
@@ -43,7 +44,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
-  
   socialButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -59,19 +59,16 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  
   googleIcon: {
     width: 20,
     height: 20,
     marginRight: 10,
   },
-  
   socialButtonText: {
     fontSize: 16,
     color: "#000",
     fontWeight: "500",
   },
-  
   forgotPassword: {
     textAlign: "center",
     color: "#007BFF",
@@ -80,6 +77,7 @@ const styles = StyleSheet.create({
   signUp: {
     textAlign: "center",
     color: "#007BFF",
+    marginTop: 20, // Add top margin for better spacing
   },
 });
 

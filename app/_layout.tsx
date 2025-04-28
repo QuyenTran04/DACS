@@ -1,82 +1,37 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs } from "expo-router";
+import { Stack } from "expo-router";
+import { useFonts } from 'expo-font';
+import { CreateTripContext } from '@/context/CreateTripContext';
+import { useState, useEffect } from "react";
+import { View, ActivityIndicator } from "react-native";
 
-export default function TabLayout() {
+export default function RootLayout() {
+  const [tripData, setTripData] = useState<any>({
+    startDate: '',
+    endDate: '',
+    totalNumOfDays: 0,
+  }); // Đảm bảo tripData có giá trị mặc định hợp lệ
+
+  const [fontsLoaded] = useFonts({
+    'Outfit': require('./../assets/fonts/Outfit-Regular.ttf'),
+    'Outfit-Medium': require('./../assets/fonts/Outfit-Medium.ttf'),
+    'Outfit-Bold': require('./../assets/fonts/Outfit-Bold.ttf'),
+  });
+
+  // Kiểm tra khi fonts chưa được tải xong, sẽ render một loading indicator
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="blue" />
+      </View>
+    );
+  }
+
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: "blue" }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          headerShown: false,
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="home" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          headerShown: false,
-          title: "Ưu đãi",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="gift" color={color} />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="user"
-        options={{
-          title: "Hồ sơ",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="user" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="login"
-        options={{
-          headerShown: false,
-          href: null,  // Removing the href makes it not navigate anywhere
-          title: "Tài khoản",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="user" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="styles"
-        options={{
-          href: null,
-          title: "Tài khoản",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="user" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="register"
-        options={{
-          headerShown: false,
-          title: "Tài khoản",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="user" color={color} />
-          ),
-        }}
-      />
-        <Tabs.Screen
-          name="_forgotPassword"  // Tên ban đầu của file
-          options={{
-            headerShown: false,
-            href: null,  // Removing the href makes it not navigate anywhere
-            title: "Tài khoản",
-            tabBarIcon: ({ color }) => (
-              <FontAwesome size={28} name="user" color={color} />
-            )
-          }}
-        />      
-    </Tabs>
-    
+    <CreateTripContext.Provider value={{ tripData, setTripData }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Thêm các màn hình khác vào Stack */}
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+    </CreateTripContext.Provider>
   );
 }
