@@ -14,7 +14,7 @@ const StartNewTripCard = () => {
       </Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/create-trip/Search-Place')} // Sửa lại dấu gạch chéo
+        onPress={() => router.push('/create-trip/Search-Place')}
       >
         <Text style={{ textAlign: 'center', color: Colors.white, fontFamily: 'Outfit-Medium', fontSize: 17 }}>
           Bắt đầu chuyến đi mới

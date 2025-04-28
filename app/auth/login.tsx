@@ -13,6 +13,13 @@ GoogleSignin.configure({
   profileImageSize: 120
 });
 
+// Tạo tài khoản giả
+const FAKE_ACCOUNT = {
+  email: "testuser@example.com",
+  password: "Test@1234",
+  fullName: "Test User"
+};
+
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,49 +51,23 @@ const Auth = () => {
 
     // Nếu là màn hình đăng nhập
     if (isLogin) {
-      try {
-        // Gửi yêu cầu đăng nhập
-        const response = await fetch("http://192.168.3.35:5000/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          Alert.alert("Đăng nhập thành công!");
-          console.log("Token:", data.token);
-          router.replace("/MyTrip"); // Chuyển đến màn hình sau khi đăng nhập thành công
-        } else {
-          Alert.alert("Lỗi", data.message);
-        }
-      } catch (error) {
-        console.error("Lỗi đăng nhập:", error);
-        Alert.alert("Lỗi", "Đã xảy ra lỗi khi đăng nhập.");
+      // Kiểm tra tài khoản giả
+      if (email === FAKE_ACCOUNT.email && password === FAKE_ACCOUNT.password) {
+        Alert.alert("Đăng nhập thành công!");
+        router.replace("/MyTrip"); // Chuyển đến màn hình sau khi đăng nhập thành công
+      } else {
+        Alert.alert("Lỗi", "Thông tin đăng nhập không chính xác.");
       }
     } else {
       // Nếu là màn hình đăng ký
-      try {
-        // Gửi yêu cầu đăng ký tài khoản
-        const response = await fetch("http://192.168.3.35:5000/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, fullName }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          Alert.alert("Đăng ký thành công!");
-          router.replace("/MyTrip"); // Chuyển đến màn hình sau khi đăng ký thành công
-        } else {
-          Alert.alert("Lỗi", data.message);
-        }
-      } catch (error) {
-        console.error("Lỗi đăng ký:", error);
-        Alert.alert("Lỗi", "Đã xảy ra lỗi khi đăng ký.");
+      if (email === FAKE_ACCOUNT.email) {
+        Alert.alert("Lỗi", "Email đã tồn tại.");
+        return;
       }
+
+      // Tạo tài khoản giả
+      Alert.alert("Đăng ký thành công!");
+      router.replace("/MyTrip"); // Chuyển đến màn hình sau khi đăng ký thành công
     }
   };
 
@@ -124,44 +105,15 @@ const Auth = () => {
 
   // Xử lý đăng nhập qua Google
   const handleLoginWithGoogle = async () => {
-    try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const userInfo = await GoogleSignin.signIn();
-      
-      console.log("--- Google User Info Object ---");
-      console.log(JSON.stringify(userInfo, null, 2));  // Kiểm tra cấu trúc đối tượng trả về
-      console.log("-------------------------------");
-  
-      // Use type assertion to access idToken
-      const idToken = (userInfo as any).idToken;
-  
-      if (idToken) {
-        await fetch("http://192.168.3.35:5000/api/auth/google", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: idToken }),
-        });
-        console.log("Sent idToken to backend.");
-        Alert.alert("Google Sign-In Success!", "Authentication successful");
-        router.replace("/MyTrip"); // Chuyển đến màn hình sau khi đăng nhập thành công
-      } else {
-        console.warn("idToken not found in userInfo object.");
-        Alert.alert("Error", "Không lấy được token từ Google.");
-      }
-    } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log("Người dùng đã hủy đăng nhập Google.");
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log("Đăng nhập đang được thực hiện...");
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert("Lỗi", "Google Play Services không khả dụng hoặc đã cũ.");
-      } else {
-        console.error("Google sign-in error:", error);
-        Alert.alert("Lỗi", "Đã xảy ra lỗi khi đăng nhập với Google.");
-      }
+    // Thay vì gọi Google SignIn, chúng ta giả lập đăng nhập Google
+    if (email === FAKE_ACCOUNT.email && password === FAKE_ACCOUNT.password) {
+      Alert.alert("Đăng nhập Google thành công!");
+      router.replace("/MyTrip"); // Chuyển đến màn hình sau khi đăng nhập thành công
+    } else {
+      Alert.alert("Lỗi", "Thông tin đăng nhập Google không chính xác.");
     }
   };
-  
+
   // Render form theo trạng thái hiện tại
   const renderForm = () => {
     if (isForgotPassword) {
@@ -251,7 +203,7 @@ const Auth = () => {
       </>
     );
   };
-  
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -266,6 +218,9 @@ const Auth = () => {
     </View>
   );
 };
+
+// Định nghĩa styles như trước
+
 
 const styles = StyleSheet.create({
   container: {

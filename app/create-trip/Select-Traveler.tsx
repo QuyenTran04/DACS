@@ -1,38 +1,39 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation, Link } from 'expo-router';
+import { useRouter } from 'expo-router'; // Use useRouter for navigation
 import OptionTravelCard from './../../components/CreateTrip/OptionTravelCard';
 import { CreateTripContext } from '../../context/CreateTripContext';
 import { selectTravelersList } from './../../constants/data';
 import { Colors } from '@/constants/Colors';
 
-const SelectTraveler = () => {
-  const navigation = useNavigation();
+const ChonNguoiDi = () => {
+  const router = useRouter();
   const [selectedTravelerId, setSelectedTravelerId] = useState<string | null>(null);
   const context = useContext(CreateTripContext);
 
   if (!context) {
-    return <Text>Error: CreateTripContext is not available</Text>;
+    return <Text>Lỗi: CreateTripContext không có sẵn</Text>;
   }
 
   const { tripData, setTripData } = context;
 
-  // Kiểm tra tripData có null không trước khi truy cập
   useEffect(() => {
     if (selectedTravelerId && tripData) {
       const selectedTraveler = selectTravelersList.find(item => item.id === Number(selectedTravelerId));
-      setTripData({
-        ...tripData,
-        traveler: selectedTraveler ? { title: selectedTraveler.title } : undefined,
-      });
+      if (selectedTraveler && selectedTraveler.title !== tripData.traveler?.title) {
+        setTripData({
+          ...tripData,
+          traveler: { title: selectedTraveler.title },
+        });
+      }
     }
   }, [selectedTravelerId, tripData, setTripData]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Who's traveling?</Text>
+      <Text style={styles.title}>Ai sẽ đi?</Text>
       <View style={{ marginTop: 20 }}>
-        <Text style={styles.subTitle}>Choose Your Travelers</Text>
+        <Text style={styles.subTitle}>Chọn người đi cùng</Text>
         <FlatList
           data={selectTravelersList}
           renderItem={({ item }) => (
@@ -50,18 +51,19 @@ const SelectTraveler = () => {
         />
       </View>
 
-      <TouchableOpacity style={styles.button}>
-        <Link href="/create-trip/Select-Dates" style={{ textAlign: 'center' }}>
-          <Text style={{ color: Colors.white, textAlign: 'center', fontFamily: 'Outfit-Medium', fontSize: 20 }}>
-            Continue
-          </Text>
-        </Link>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push('/create-trip/Select-Dates')}
+      >
+        <Text style={{ color: Colors.white, textAlign: 'center', fontFamily: 'Outfit-Medium', fontSize: 20 }}>
+          Continue
+        </Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export default SelectTraveler;
+export default ChonNguoiDi;
 
 const styles = StyleSheet.create({
   container: {
