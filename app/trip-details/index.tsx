@@ -11,7 +11,8 @@ import type { Activity } from '../../components/TripDetails/PlannedTrip';
 const Index = () => {
   const navigation = useNavigation();
   const { trip } = useLocalSearchParams();
-  
+
+  // Kiểu dữ liệu chi tiết chuyến đi
   interface TripDetails {
     tripPlan?: {
       trip?: {
@@ -36,11 +37,12 @@ const Index = () => {
   }
 
   const [tripDetails, setTripDetails] = useState<TripDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // State to handle loading
+  const [isLoading, setIsLoading] = useState(true); // Trạng thái loading
 
+  // Hàm để format dữ liệu trip (nếu là chuỗi)
   const formatData = (data: string | string[] | { locationInfo?: { photoRef?: string }; startDate?: string; endDate?: string; traveler?: { title?: string }; } | undefined) => {
     try {
-      return typeof data === 'string' ? JSON.parse(data) : null;
+      return typeof data === 'string' ? JSON.parse(data) : data;
     } catch (error) {
       console.error('Error parsing data:', error);
       return null;
@@ -57,7 +59,7 @@ const Index = () => {
     if (trip) {
       const parsedTrip = formatData(trip);
       setTripDetails(parsedTrip);
-      setIsLoading(false); // Set loading to false once data is fetched
+      setIsLoading(false); // Đã tải xong dữ liệu
     }
   }, [trip]);
 
@@ -74,8 +76,8 @@ const Index = () => {
   const tripData = tripDetails?.tripData;
   const photoRef = tripData?.locationInfo?.photoRef;
 
-  // Bỏ qua việc lấy ảnh từ Google Places API
-  const imageUrl = photoRef ? `path/to/local/image.jpg` : null; // Sử dụng ảnh mặc định hoặc một ảnh có sẵn
+  // Bỏ qua việc lấy ảnh từ Google Places API và sử dụng ảnh mặc định
+  const imageUrl = photoRef ? `path/to/local/image.jpg` : null;
 
   const flights = tripDetails?.tripPlan?.trip?.flights || [];
   const hotels = tripDetails?.tripPlan?.trip?.hotels || [];
@@ -96,7 +98,7 @@ const Index = () => {
       )}
       <View style={styles.container}>
         <Text style={styles.title}>
-          {tripDetails.tripPlan?.travel_plan?.destination}
+          {tripDetails.tripPlan?.travel_plan?.destination || 'Chưa có thông tin điểm đến'}
         </Text>
         <View style={styles.flexBox}>
           <Text style={styles.smallPara}>
@@ -110,12 +112,26 @@ const Index = () => {
           🚌 {tripData?.traveler?.title || 'No traveler info'}
         </Text>
 
-        {/* Flight Info */}
-        <FlightInfo flightData={flights} />
-        {/* Hotel List */}
-        <HotelList hotelList={hotels} />
-        {/* Trip Daily Plan */}
-        <PlannedTrip details={tripDailyPlan} />
+        {/* Hiển thị thông tin chuyến bay */}
+        {flights.length > 0 ? (
+          <FlightInfo flightData={flights} />
+        ) : (
+          <Text style={styles.noDataText}>Chưa có thông tin chuyến bay</Text>
+        )}
+
+        {/* Hiển thị danh sách khách sạn */}
+        {hotels.length > 0 ? (
+          <HotelList hotelList={hotels} />
+        ) : (
+          <Text style={styles.noDataText}>Chưa có thông tin khách sạn</Text>
+        )}
+
+        {/* Hiển thị lịch trình chi tiết */}
+        {Object.keys(tripDailyPlan).length > 0 ? (
+          <PlannedTrip details={tripDailyPlan} />
+        ) : (
+          <Text style={styles.noDataText}>Chưa có lịch trình cho chuyến đi</Text>
+        )}
       </View>
     </ScrollView>
   );
@@ -157,5 +173,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.white,
     height: '100%',
+  },
+  noDataText: {
+    fontFamily: 'Outfit',
+    fontSize: 18,
+    color: Colors.gray,
+    marginTop: 15,
+    textAlign: 'center',
   },
 });

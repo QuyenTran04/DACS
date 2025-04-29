@@ -10,20 +10,27 @@ const ReviewTrip = () => {
   const router = useRouter();
   const context = useContext(CreateTripContext);
 
-  // Kiểm tra context có null hay không trước khi sử dụng
-  if (!context) {
-    return <Text>Loading...</Text>; // Hoặc giao diện fallback
-  }
-
-  const { tripData } = context; // Lấy tripData từ context
-
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
       headerTransparent: true,
       headerTitle: '',
     });
-  }, [navigation]);
+    
+    // Log current context state to debug
+    console.log("Current tripData:", context?.tripData);
+  }, [navigation, context]);
+
+  // Kiểm tra context có null hay không trước khi sử dụng
+  if (!context) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Loading context...</Text>
+      </View>
+    );
+  }
+
+  const { tripData } = context; // Lấy tripData từ context
 
   if (!tripData) {
     return (
@@ -32,6 +39,11 @@ const ReviewTrip = () => {
       </View>
     );
   }
+
+  // Format dates if they exist, otherwise use placeholders
+  const startDateFormatted = tripData.startDate ? moment(tripData.startDate).format('DD MMM') : 'Not set';
+  const endDateFormatted = tripData.endDate ? moment(tripData.endDate).format('DD MMM') : 'Not set';
+  const totalDays = tripData.totalNumOfDays || 'Calculating...';
 
   return (
     <View style={styles.container}>
@@ -50,7 +62,7 @@ const ReviewTrip = () => {
               Địa điểm
             </Text>
             <Text style={{ fontFamily: 'Outfit-Medium', fontSize: 20 }}>
-              {tripData?.locationInfo?.name}
+              {tripData?.locationInfo?.name || 'Chưa chọn địa điểm'}
             </Text>
           </View>
         </View>
@@ -63,9 +75,7 @@ const ReviewTrip = () => {
               Ngày du lịch
             </Text>
             <Text style={{ fontFamily: 'Outfit-Medium', fontSize: 20 }}>
-              {moment(tripData?.startDate).format('DD MMM') + ' TO ' +
-                moment(tripData?.endDate).format('DD MMM') +
-                ' (' + tripData?.totalNumOfDays + ' Ngày)'}
+              {startDateFormatted} TO {endDateFormatted} ({totalDays} Ngày)
             </Text>
           </View>
         </View>
@@ -78,7 +88,7 @@ const ReviewTrip = () => {
               Ai sẽ tham gia
             </Text>
             <Text style={{ fontFamily: 'Outfit-Medium', fontSize: 20 }}>
-              {tripData?.traveler?.title}
+              {tripData?.traveler?.title || 'Chưa chọn người tham gia'}
             </Text>
           </View>
         </View>
@@ -91,7 +101,7 @@ const ReviewTrip = () => {
               Ngân sách
             </Text>
             <Text style={{ fontFamily: 'Outfit-Medium', fontSize: 20 }}>
-              {tripData?.budget}
+              {tripData?.budget || 'Chưa chọn ngân sách'}
             </Text>
           </View>
         </View>
