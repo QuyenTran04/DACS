@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { View, Text, Button, Alert } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { useRouter } from "expo-router";
+import { useCreateTrip } from '../../context/CreateTripContext'; // <-- dùng custom hook
 
 const SelectDates = () => {
   const router = useRouter();
+  const { tripData, setTripData } = useCreateTrip(); 
+
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
 
@@ -27,21 +30,21 @@ const SelectDates = () => {
       return;
     }
 
-    // Tính số ngày giữa 2 ngày
     const diffTime = Math.abs(new Date(endDate).getTime() - new Date(startDate).getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
     if (diffDays > 5) {
       Alert.alert("Thông báo", "Bạn chỉ được chọn tối đa 5 ngày!");
     } else {
-      // Điều hướng đến trang Select-Budget
-      router.push({
-        pathname: "/create-trip/Select-Budget",
-        params: {
-          startDate,
-          endDate,
-        },
+      // ✅ Cập nhật vào context
+      setTripData({
+        ...tripData,
+        startDate,
+        endDate,
+        totalNumOfDays: diffDays,
       });
+
+      router.push("/create-trip/Select-Budget");
     }
   };
 
@@ -50,7 +53,7 @@ const SelectDates = () => {
       <Text style={{ fontSize: 24, textAlign: "center", marginBottom: 20 }}>
         Chọn lịch cho chuyến đi
       </Text>
-      
+
       <Calendar
         onDayPress={onDayPress}
         markingType={"period"}
@@ -59,15 +62,14 @@ const SelectDates = () => {
           ...(endDate ? { [endDate]: { endingDay: true, color: "#70d7c7", textColor: "white" } } : {}),
           ...(startDate && endDate ? getMarkedDates(startDate, endDate) : {}),
         }}
-        minDate={new Date().toISOString().split('T')[0]} // Ngày tối thiểu là hôm nay
+        minDate={new Date().toISOString().split('T')[0]}
       />
 
-      <Button title="Continue" onPress={handleContinue} />
+      <Button title="Tiếp tục" onPress={handleContinue} />
     </View>
   );
 };
 
-// Helper function để đánh dấu các ngày giữa startDate và endDate
 const getMarkedDates = (start: string, end: string) => {
   let dates: any = {};
   let current = new Date(start);
