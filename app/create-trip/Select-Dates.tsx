@@ -1,85 +1,123 @@
-import React, { useState, useContext } from "react";
-import { View, Text, Button, Alert } from "react-native";
+import { View, Text } from "react-native";
+import React, { useContext, useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Calendar } from "react-native-calendars";
 import { useRouter } from "expo-router";
-import { useCreateTrip } from '../../context/CreateTripContext'; // <-- dùng custom hook
+import CustomButton from "@/components/CustomButton";
+import { CreateTripContext } from "@/context/CreateTripContext";
+import moment from "moment";
 
 const SelectDates = () => {
   const router = useRouter();
-  const { tripData, setTripData } = useCreateTrip(); 
+  const { setTripData } = useContext(CreateTripContext);
+  const [selectedStartDate, setSelectedStartDate] = useState<string | null>(null);
+  const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
 
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
-
-  const onDayPress = (day: any) => {
-    if (!startDate || (startDate && endDate)) {
-      setStartDate(day.dateString);
-      setEndDate(null); // Reset end date khi chọn lại ngày bắt đầu
-    } else if (startDate && !endDate) {
-      if (day.dateString >= startDate) {
-        setEndDate(day.dateString);
-      } else {
-        setStartDate(day.dateString); // Nếu ngày kết thúc nhỏ hơn ngày bắt đầu, đổi lại
-      }
+  const onDayPress = (day: { dateString: string }) => {
+    if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+      setSelectedStartDate(day.dateString);
+      setSelectedEndDate(null);
+    } else if (moment(day.dateString).isBefore(selectedStartDate)) {
+      setSelectedStartDate(day.dateString);
+    } else {
+      setSelectedEndDate(day.dateString);
     }
   };
 
-  const handleContinue = () => {
-    if (!startDate || !endDate) {
-      Alert.alert("Thông báo", "Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc.");
-      return;
+  const getMarkedDates = () => {
+    if (!selectedStartDate) return {};
+
+    const marked: any = {
+      [selectedStartDate]: {
+        startingDay: true,
+        color: "#8b5cf6",
+        textColor: "white",
+      },
+    };
+
+    if (selectedEndDate) {
+      const start = moment(selectedStartDate);
+      const end = moment(selectedEndDate);
+      const range = end.diff(start, "days");
+
+      for (let i = 1; i < range; i++) {
+        const date = start.clone().add(i, "days").format("YYYY-MM-DD");
+        marked[date] = {
+          color: "#c4b5fd",
+          textColor: "white",
+        };
+      }
+
+      marked[selectedEndDate] = {
+        endingDay: true,
+        color: "#8b5cf6",
+        textColor: "white",
+      };
     }
 
-    const diffTime = Math.abs(new Date(endDate).getTime() - new Date(startDate).getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return marked;
+  };
 
-    if (diffDays > 5) {
-      Alert.alert("Thông báo", "Bạn chỉ được chọn tối đa 5 ngày!");
-    } else {
-      // ✅ Cập nhật vào context
-      setTripData({
-        ...tripData,
-        startDate,
-        endDate,
-        totalNumOfDays: diffDays,
+  const handleConfirmDates = () => {
+    if (selectedStartDate && selectedEndDate) {
+      const totalNumberOfDays = moment(selectedEndDate).diff(moment(selectedStartDate), "days") + 1;
+      setTripData((prev) => {
+        const newData = prev.filter((item) => !item.dates);
+        return [
+          ...newData,
+          {
+            dates: {
+              startDate: new Date(selectedStartDate),
+              endDate: new Date(selectedEndDate),
+              totalNumberOfDays,
+            },
+          },
+        ];
       });
-
-      router.push("/create-trip/Select-Budget");
+      router.push("/create-trip/select-budget");
+    } else {
+      alert("Please select both start and end dates");
     }
   };
 
   return (
-    <View style={{ flex: 1, padding: 16, justifyContent: "center", backgroundColor: "#f3f4f6" }}>
-      <Text style={{ fontSize: 24, textAlign: "center", marginBottom: 20 }}>
-        Chọn lịch cho chuyến đi
-      </Text>
+    <SafeAreaView className="flex-1">
+      <View className="px-2 py-6">
+        <Text className="text-5xl font-outfit-bold mb-2 px-4">
+          When are you traveling?
+        </Text>
+        <Text className="text-gray-500 font-outfit-medium mb-6 px-5">
+          Select your travel dates
+        </Text>
 
-      <Calendar
-        onDayPress={onDayPress}
-        markingType={"period"}
-        markedDates={{
-          ...(startDate ? { [startDate]: { startingDay: true, color: "#70d7c7", textColor: "white" } } : {}),
-          ...(endDate ? { [endDate]: { endingDay: true, color: "#70d7c7", textColor: "white" } } : {}),
-          ...(startDate && endDate ? getMarkedDates(startDate, endDate) : {}),
-        }}
-        minDate={new Date().toISOString().split('T')[0]}
-      />
+        <View className="bg-white rounded-xl shadow-sm border border-neutral-100 p-4">
+          <Calendar
+            onDayPress={onDayPress}
+            markedDates={getMarkedDates()}
+            markingType="period"
+            minDate={moment().format("YYYY-MM-DD")}
+            theme={{
+              selectedDayBackgroundColor: "#8b5cf6",
+              todayTextColor: "#8b5cf6",
+              arrowColor: "#8b5cf6",
+              textDayFontFamily: "outfit",
+              textMonthFontFamily: "outfit-bold",
+              textDayHeaderFontFamily: "outfit-medium",
+            }}
+          />
+        </View>
 
-      <Button title="Tiếp tục" onPress={handleContinue} />
-    </View>
+        <View className="mt-6">
+          <CustomButton
+            title="Confirm Dates"
+            onPress={handleConfirmDates}
+            disabled={!selectedEndDate}
+            className="disabled:opacity-50"
+          />
+        </View>
+      </View>
+    </SafeAreaView>
   );
-};
-
-const getMarkedDates = (start: string, end: string) => {
-  let dates: any = {};
-  let current = new Date(start);
-  const last = new Date(end);
-  while (current <= last) {
-    const dateString = current.toISOString().split('T')[0];
-    dates[dateString] = { color: "#95e1d3", textColor: "white" };
-    current.setDate(current.getDate() + 1);
-  }
-  return dates;
 };
 
 export default SelectDates;

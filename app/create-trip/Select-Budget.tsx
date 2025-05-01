@@ -1,97 +1,65 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ToastAndroid } from 'react-native';
-import { useNavigation, useRouter } from 'expo-router';
-import { useEffect, useState, useContext } from 'react';
-import { Colors } from '@/constants/Colors';
-import OptionTravelCard from './../../components/CreateTrip/OptionTravelCard';
-import { CreateTripContext } from '../../context/CreateTripContext';
-import { selectBudgetOption } from './../../constants/data';
-
-interface BudgetOption {
-  id: number;
-  title: string;
-  description: string;
-}
+import {
+  View,
+  Text,
+  SafeAreaView,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import React, { useContext } from "react";
+import { budgetOptions } from "@/constants/Options";
+import { router, useRouter } from "expo-router";
+import { CreateTripContext } from "@/context/CreateTripContext";
 
 const SelectBudget = () => {
-  const navigation = useNavigation();
   const router = useRouter();
+  const { tripData, setTripData } = useContext(CreateTripContext);
 
-  const [selectedOption, setSelectedOption] = useState<BudgetOption | null>(null);
-
-  const createTripContext = useContext(CreateTripContext);
-  if (!createTripContext) {
-    throw new Error('CreateTripContext is missing');
-  }
-  const { tripData, setTripData } = createTripContext;
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerShown: true,
-      headerTransparent: true,
-      headerTitle: '',
+  const handleSelectBudget = (option: any) => {
+    setTripData((prev) => {
+      const newData = prev.filter((item) => !item.budget);
+      return [...newData, { budget: { type: option.title } }];
     });
-  }, [navigation]);
-
-  useEffect(() => {
-    if (selectedOption && tripData) {
-      setTripData({
-        ...tripData,
-        budget: selectedOption.title,
-      });
-    }
-  }, [selectedOption]);
-
-  const onClickContinue = () => {
-    if (!selectedOption) {
-      ToastAndroid.show('Select Your Budget', ToastAndroid.LONG);
-      return;
-    }
-    router.push('/create-trip/Review-Trip');
+    // Navigate to next screen or handle selection
+    router.push("/create-trip/review-trip");
   };
 
+  const renderItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      onPress={() => handleSelectBudget(item)}
+      className="flex-row items-center p-4 bg-white rounded-xl mb-4 shadow-sm border border-neutral-100"
+    >
+      <View className="bg-purple-100 p-3 rounded-full">
+        <Text className="text-2xl">{item.icon}</Text>
+      </View>
+      <View className="flex-1 ml-4">
+        <Text className="text-lg font-outfit-bold">{item.title}</Text>
+        <Text className="text-gray-500 text-sm font-outfit">
+          {item.description}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Budget</Text>
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontFamily: 'Outfit-Bold', fontSize: 20 }}>Select Your Trip Spending Habit</Text>
+    <SafeAreaView className="flex justify-center mt-20">
+      <View className="p-6">
+        <Text className="text-5xl font-outfit-bold mb-2">
+          Define your budget
+        </Text>
+        <Text className="text-gray-500 font-outfit-medium mb-12">
+          Pick a category that best fits you
+        </Text>
+
         <FlatList
-          data={selectBudgetOption}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={{ marginVertical: 10 }} onPress={() => setSelectedOption({ ...item, description: item.desc })}>
-              <OptionTravelCard option={item} selectedOption={selectedOption} />
-            </TouchableOpacity>
-          )}
+          data={budgetOptions}
+          renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ gap: 12 }}
         />
       </View>
-      <TouchableOpacity style={styles.button} onPress={onClickContinue}>
-        <Text style={{ color: Colors.white, textAlign: 'center', fontFamily: 'Outfit-Medium', fontSize: 20 }}>
-          Continue
-        </Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default SelectBudget;
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.white,
-    paddingTop: 85,
-    padding: 25,
-    height: '100%',
-  },
-  title: {
-    fontFamily: 'Outfit-Bold',
-    fontSize: 30,
-    textAlign: 'center',
-    marginTop: 10,
-  },
-  button: {
-    backgroundColor: Colors.primary,
-    padding: 15,
-    borderRadius: 15,
-    marginTop: 20,
-  },
-});

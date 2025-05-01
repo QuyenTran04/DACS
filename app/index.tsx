@@ -1,32 +1,32 @@
-import { View, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useContext, useEffect } from 'react';
-import Login from './../components/Login';
-import { CreateTripContext } from '@/context/CreateTripContext';
+import { Redirect } from "expo-router";
+import { View, ActivityIndicator } from "react-native";
+import { auth } from "@/config/FirebaseConfig";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 
-export default function Index() {
-  const context = useContext(CreateTripContext);
-  const tripData = context?.tripData || {};
-  const router = useRouter();
+export default function HomeScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(auth.currentUser);
 
   useEffect(() => {
-    // Check if user is logged in
-    if (tripData && 'user' in tripData && tripData.user) {
-      router.push('/MyTrip');
-    }
-  }, [tripData, router]);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setIsLoading(false);
+    });
 
-  return (
-    <View style={styles.container}>
-      {!(tripData && 'user' in tripData && tripData.user) ? <Login /> : null}
-    </View>
-  );
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#8b5cf6" />
+      </View>
+    );
+  }
+
+  if (user) return <Redirect href="/(tabs)/mytrip" />;
+
+  return <Redirect href="/(auth)/welcome" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

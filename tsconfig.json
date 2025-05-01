@@ -1,21 +1,20 @@
 {
-  "moduleResolution": "node",
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "skipLibCheck": true,
     "strict": true,
     "paths": {
       "@/*": [
         "./*"
-      ]
+      ],
+      "@firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"]
     }
   },
   "include": [
-    "global.d.ts", "server.ts",
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "config/database.ts", "app/forgotPassword.tsx"  ]
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+  ],
+  
 }

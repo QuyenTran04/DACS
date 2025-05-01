@@ -1,184 +1,77 @@
-import { StyleSheet, Text, View, Image, ScrollView, ActivityIndicator } from 'react-native';
-import { useNavigation, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from "react";
-import { Colors } from '../../constants/Colors';
-import moment from 'moment';
-import FlightInfo from '../../components/TripDetails/FlightInfo';
-import HotelList from '../../components/TripDetails/HotelList';
-import PlannedTrip from '../../components/TripDetails/PlannedTrip';
-import type { Activity } from '../../components/TripDetails/PlannedTrip';
+import { View, Text, Image, ScrollView } from "react-native";
+import React from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import moment from "moment";
+import CustomButton from "@/components/CustomButton";
 
-const Index = () => {
-  const navigation = useNavigation();
-  const { trip } = useLocalSearchParams();
+const TripDetails = () => {
+  const router = useRouter();
+  const { tripData, tripPlan } = useLocalSearchParams();
 
-  // Kiểu dữ liệu chi tiết chuyến đi
-  interface TripDetails {
-    tripPlan?: {
-      trip?: {
-        flights?: any[];
-        hotels?: any[];
-        itinerary?: any[];
-      };
-      travel_plan?: {
-        destination?: string;
-      };
-    };
-    tripData?: {
-      locationInfo?: {
-        photoRef?: string;
-      };
-      startDate?: string;
-      endDate?: string;
-      traveler?: {
-        title?: string;
-      };
-    };
-  }
+  const parsedTripData = JSON.parse(tripData as string);
+  const parsedTripPlan = JSON.parse(tripPlan as string);
 
-  const [tripDetails, setTripDetails] = useState<TripDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Trạng thái loading
-
-  // Hàm để format dữ liệu trip (nếu là chuỗi)
-  const formatData = (data: string | string[] | { locationInfo?: { photoRef?: string }; startDate?: string; endDate?: string; traveler?: { title?: string }; } | undefined) => {
-    try {
-      return typeof data === 'string' ? JSON.parse(data) : data;
-    } catch (error) {
-      console.error('Error parsing data:', error);
-      return null;
-    }
-  };
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerShown: true,
-      headerTransparent: true,
-      headerTitle: '',
-    });
-
-    if (trip) {
-      const parsedTrip = formatData(trip);
-      setTripDetails(parsedTrip);
-      setIsLoading(false); // Đã tải xong dữ liệu
-    }
-  }, [trip]);
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
-    );
-  }
-
-  if (!tripDetails) return null;
-
-  const tripData = tripDetails?.tripData;
-  const photoRef = tripData?.locationInfo?.photoRef;
-
-  // Bỏ qua việc lấy ảnh từ Google Places API và sử dụng ảnh mặc định
-  const imageUrl = photoRef ? `path/to/local/image.jpg` : null;
-
-  const flights = tripDetails?.tripPlan?.trip?.flights || [];
-  const hotels = tripDetails?.tripPlan?.trip?.hotels || [];
-  const tripDailyPlan: Record<string, Activity[]> = Array.isArray(tripDetails?.tripPlan?.trip?.itinerary)
-    ? tripDetails.tripPlan.trip.itinerary.reduce((acc, item, index) => {
-        acc[`Day ${index + 1}`] = item.activities || [];
-        return acc;
-      }, {} as Record<string, Activity[]>)
-    : {};
+  const locationInfo = parsedTripData?.find(
+    (item: any) => item.locationInfo
+  )?.locationInfo;
+  const startDate = parsedTripData?.find((item: any) => item.dates)?.dates
+    ?.startDate;
+  const endDate = parsedTripData?.find((item: any) => item.dates)?.dates
+    ?.endDate;
+  const travelers = parsedTripData?.find(
+    (item: any) => item.travelers
+  )?.travelers;
+  const totalNumberOfDays = moment(endDate).diff(startDate, "days") + 1;
+  const budget = parsedTripData?.find((item: any) => item.budget)?.budget?.type;
 
   return (
-    <ScrollView>
-      {/* Nếu không có ảnh từ Google, hiển thị ảnh mặc định */}
-      {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.image} />
-      ) : (
-        <Image source={require('./../../assets/images/travel.jpg')} style={styles.image} />
-      )}
-      <View style={styles.container}>
-        <Text style={styles.title}>
-          {tripDetails.tripPlan?.travel_plan?.destination || 'Chưa có thông tin điểm đến'}
+    <ScrollView className="flex-1 bg-white">
+      <Image
+        source={{
+          uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${locationInfo?.photoRef}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_KEY}`,
+        }}
+        className="w-full h-72"
+      />
+
+      <View className="p-6">
+        <Text className="text-3xl font-outfit-bold">
+          {parsedTripPlan?.trip_plan?.location}
         </Text>
-        <View style={styles.flexBox}>
-          <Text style={styles.smallPara}>
-            {tripData?.startDate ? moment(tripData?.startDate).format("DD MMM YYYY") : 'N/A'}
+
+        <View className="mt-4 space-y-2">
+          <Text className="text-lg font-outfit text-gray-600">
+            {moment(startDate).format("MMM D")} -{" "}
+            {moment(endDate).format("MMM D, YYYY")}
           </Text>
-          <Text style={styles.smallPara}>
-            - {tripData?.endDate ? moment(tripData?.endDate).format("DD MMM YYYY") : 'N/A'}
+          <Text className="text-lg font-outfit text-gray-600">
+            Total Number of Days: {totalNumberOfDays}
           </Text>
+          <Text className="text-lg font-outfit text-gray-600">
+            {travelers?.type} ({travelers?.count})
+          </Text>
+          <Text className="text-lg font-outfit text-gray-600">
+            Budget Type: {budget}
+          </Text>
+          <View className="flex mt-10 items-center justify-center">
+            <Text className="text-lg font-outfit-medium text-gray-600">
+              Want to see flights, hotel recommendations and more plan details?
+            </Text>
+          </View>
         </View>
-        <Text style={styles.smallPara}>
-          🚌 {tripData?.traveler?.title || 'No traveler info'}
-        </Text>
 
-        {/* Hiển thị thông tin chuyến bay */}
-        {flights.length > 0 ? (
-          <FlightInfo flightData={flights} />
-        ) : (
-          <Text style={styles.noDataText}>Chưa có thông tin chuyến bay</Text>
-        )}
-
-        {/* Hiển thị danh sách khách sạn */}
-        {hotels.length > 0 ? (
-          <HotelList hotelList={hotels} />
-        ) : (
-          <Text style={styles.noDataText}>Chưa có thông tin khách sạn</Text>
-        )}
-
-        {/* Hiển thị lịch trình chi tiết */}
-        {Object.keys(tripDailyPlan).length > 0 ? (
-          <PlannedTrip details={tripDailyPlan} />
-        ) : (
-          <Text style={styles.noDataText}>Chưa có lịch trình cho chuyến đi</Text>
-        )}
+        <CustomButton
+          title="Discover Location"
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/discover",
+              params: { tripData, tripPlan },
+            })
+          }
+          className="mt-7"
+        />
       </View>
     </ScrollView>
   );
-}
+};
 
-export default Index;
-
-const styles = StyleSheet.create({
-  image: {
-    width: '100%',
-    height: 330,
-  },
-  container: {
-    padding: 15,
-    backgroundColor: Colors.white,
-    height: '100%',
-    marginTop: -30,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-  },
-  title: {
-    fontFamily: 'Outfit-Bold',
-    fontSize: 25,
-  },
-  smallPara: {
-    fontFamily: 'Outfit',
-    fontSize: 18,
-    color: Colors.gray,
-  },
-  flexBox: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: 5,
-    marginTop: 5,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    height: '100%',
-  },
-  noDataText: {
-    fontFamily: 'Outfit',
-    fontSize: 18,
-    color: Colors.gray,
-    marginTop: 15,
-    textAlign: 'center',
-  },
-});
+export default TripDetails;

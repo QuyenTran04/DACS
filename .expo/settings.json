@@ -5,6 +5,6 @@
   "minify": false,
   "urlRandomness": null,
   "https": false,
-  "scheme": "com.quyennn.Quyenne",
+  "scheme": null,
   "devClient": false
 }
