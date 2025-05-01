@@ -1,80 +1,67 @@
-import { StyleSheet, Text, View, Image } from 'react-native';
-import moment from 'moment';
-import { Colors } from './../../constants/Colors';
+import { View, Text, Image } from "react-native";
+import React from "react";
+import moment from "moment";
+import CustomButton from "../CustomButton";
+import { useRouter } from "expo-router";
 
-interface Trip {
-  tripData?: string;
-  tripPlan?: {
-    travel_plan?: {
-      destination?: string;
-    };
-  };
-}
-const UserTripCard = ({ trip }: { trip: Trip }) => {
-  const formatData = (data: string | undefined) => {
-    try {
-      return JSON.parse(data ?? '{}');
-    } catch (error) {
-      console.error('Error parsing data:', error);
-      return null;
-    }
-  };
+const UserTripCard = ({ trip }: { trip: any }) => {
+  const router = useRouter();
 
-  const tripData = formatData(trip?.tripData);
+  const tripData = JSON.parse(trip?.tripData);
+  const locationInfo = tripData?.find(
+    (item: any) => item.locationInfo
+  )?.locationInfo;
+  const startDate = tripData?.find((item: any) => item.dates)?.dates?.startDate;
+  const endDate = tripData?.find((item: any) => item.dates)?.dates?.endDate;
 
-  // Không sử dụng API Google Map nữa
-  const imageUrl = tripData?.locationInfo?.photoRef 
-    ? `https://example.com/images/${tripData?.locationInfo?.photoRef}.jpg` // Thay thế bằng link ảnh khác nếu cần
-    : null;
+  const isPastTrip = moment().isAfter(moment(endDate));
 
   return (
-    <View style={styles.flexContainer}>
-      {imageUrl ? (
-        <Image 
-          source={{ uri: imageUrl }} 
-          style={styles.image} 
+    <View className="mt-5 flex flex-row gap-3">
+      <View className="w-32 h-32">
+        <Image
+          source={{
+            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${locationInfo?.photoRef}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_KEY}`,
+          }}
+          className={`w-full h-full rounded-2xl ${
+            isPastTrip ? "grayscale" : ""
+          }`}
         />
-      ) : (
-        <Image 
-          source={require('./../../assets/images/travel.jpg')} 
-          style={styles.image} 
+      </View>
+      <View className="flex-1">
+        <Text
+          className={`font-outfit-medium text-lg ${
+            isPastTrip ? "text-gray-500" : ""
+          }`}
+          numberOfLines={2}
+        >
+          {trip?.tripPlan?.trip_plan?.location}
+        </Text>
+        <Text className="font-outfit text-md text-gray-500 mt-1">
+          {moment(startDate).format("DD MMM yyyy")}
+        </Text>
+        <Text className="font-outfit-medium text-md text-gray-500 mt-1">
+          {trip?.tripPlan?.trip_plan?.group_size.split(" ")[0]}
+        </Text>
+      </View>
+      <View className="flex-1">
+        <CustomButton
+          title="View Trip"
+          onPress={() =>
+            router.push({
+              pathname: "/trip-details",
+              params: {
+                tripData: trip.tripData,
+                tripPlan: JSON.stringify(trip.tripPlan),
+              },
+            })
+          }
+          disabled={isPastTrip}
+          className={`mt-2 py-0.5 ${isPastTrip ? "opacity-50" : ""}`}
         />
-      )}
-      <View style={{ marginLeft: 10 }}>
-        <Text style={styles.paragraph}>
-          {trip?.tripPlan?.travel_plan?.destination}
-        </Text>
-        <Text style={styles.smallPara}>
-          {moment(tripData?.startDate).format("DD MMM YYYY")}
-        </Text>
-        <Text style={styles.smallPara}>
-          Travelling: {tripData?.traveler?.title}
-        </Text>
       </View>
     </View>
   );
 };
 
 export default UserTripCard;
-
-const styles = StyleSheet.create({
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 15,
-  },
-  flexContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  paragraph: {
-    fontFamily: 'Outfit-Medium',
-    fontSize: 18,
-  },
-  smallPara: {
-    fontFamily: 'Outfit',
-    fontSize: 14,
-    color: Colors.gray,
-  },
-});

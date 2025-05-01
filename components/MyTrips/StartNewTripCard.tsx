@@ -1,55 +1,36 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Entypo } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
-import { useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity } from "react-native";
+import React, { useContext } from "react";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import CustomButton from "@/components/CustomButton";
+import { useRouter } from "expo-router";
+import { CreateTripContext } from "@/context/CreateTripContext";
 
 const StartNewTripCard = () => {
   const router = useRouter();
+  const { setTripData } = useContext(CreateTripContext);
+
+  const handleStartNewTrip = () => {
+    setTripData([]); // Clear trip data
+    router.push("/create-trip/search-place");
+  };
+
   return (
-    <View style={styles.mainView}>
-      <Entypo name="location" size={24} color="black" />
-      <Text style={styles.title}>Chưa có kế hoạch chuyến đi</Text>
-      <Text style={styles.paragraph}>
-        Đã đến lúc lên kế hoạch cho chuyến đi mới! Thế giới đầy những cuộc phiêu lưu, và tôi rất háo hức khám phá!
+    <View className="p-5 flex items-center justify-center gap-5 h-full">
+      <FontAwesome6 name="map-location-dot" size={50} color="#8b5cf6" />
+      <Text className="font-outfit-bold text-purple-700 text-xl">
+        No Trips planned yet
       </Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/create-trip/Search-Place')}
-      >
-        <Text style={{ textAlign: 'center', color: Colors.white, fontFamily: 'Outfit-Medium', fontSize: 17 }}>
-          Bắt đầu chuyến đi mới
-        </Text>
-      </TouchableOpacity>
+      <Text className="font-outfit-medium text-gray-500 text-center w-4/5">
+        Plan your next trip by clicking on the button below
+      </Text>
+      <CustomButton
+        title="Start New Trip"
+        onPress={handleStartNewTrip}
+        bgVariant="primary"
+        className="mt-5"
+      />
     </View>
   );
 };
 
 export default StartNewTripCard;
-
-const styles = StyleSheet.create({
-  mainView: {
-    backgroundColor: Colors.white,
-    marginTop: 50,
-    padding: 20,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 25,
-  },
-  title: {
-    fontFamily: 'Outfit-Medium',
-    fontSize: 25,
-    marginTop: 10,
-  },
-  paragraph: {
-    fontFamily: 'Outfit',
-    fontSize: 20,
-    textAlign: 'center',
-    color: Colors.gray,
-  },
-  button: {
-    padding: 15,
-    backgroundColor: Colors.primary,
-    borderRadius: 15,
-    paddingHorizontal: 30,
-  },
-});

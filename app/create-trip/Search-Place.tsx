@@ -1,7 +1,15 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useCreateTrip } from '@/context/CreateTripContext';
-import { Colors } from '@/constants/Colors';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  FlatList,
+  StyleSheet
+} from "react-native";
+import React, { useContext } from "react";
+import { useRouter } from "expo-router";
+import { CreateTripContext } from "@/context/CreateTripContext";
 
 const locations = [
   { name: 'Hà Nội', coordinate: { lat: 21.0285, lng: 105.8542 } },
@@ -12,57 +20,85 @@ const locations = [
 
 const SearchPlace = () => {
   const router = useRouter();
-  const { tripData, setTripData } = useCreateTrip();
+  const { setTripData } = useContext(CreateTripContext);
 
-  const handleSelectLocation = (location: typeof locations[0]) => {
-    setTripData({
-      ...tripData!,
-      locationInfo: {
-        name: location.name,
-        coordinate: location.coordinate,
-      },
+  // Hàm xử lý khi chọn địa điểm
+  const handleSelectPlace = (location: { name: any; coordinate: any; }) => {
+    setTripData((prev) => {
+      const newData = prev.filter((item) => !item.locationInfo);
+      return [
+        ...newData,
+        {
+          locationInfo: {
+            name: location.name,
+            coordinates: location.coordinate,
+          },
+        },
+      ];
     });
-    router.push('/create-trip/Select-Traveler');
+    router.push("/create-trip/select-traveler");
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Chọn điểm đến của bạn</Text>
-      <FlatList
-        data={locations}
-        keyExtractor={(item) => item.name}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.item} onPress={() => handleSelectLocation(item)}>
-            <Text style={styles.itemText}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.title}>Where do you want to go?</Text>
+          <Text style={styles.subtitle}>Find your destination!</Text>
+        </View>
+
+        <View style={styles.listContainer}>
+          <FlatList
+            data={locations}
+            keyExtractor={(item) => item.name}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => handleSelectPlace(item)}
+                style={styles.locationItem}
+              >
+                <Text style={styles.locationText}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
-
-export default SearchPlace;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
-    paddingTop: 80,
-    paddingHorizontal: 20,
+  },
+  headerContainer: {
+    alignItems: "center",
+    marginTop: 20,
   },
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
+    fontSize: 30,
+    fontFamily: "Outfit-Bold",
+    marginBottom: 5,
   },
-  item: {
-    backgroundColor: Colors.lightGray,
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  itemText: {
+  subtitle: {
     fontSize: 18,
+    color: "#B0B0B0", // Gray color for subtitle
+    fontFamily: "Outfit",
+  },
+  listContainer: {
+    padding: 16,
+    marginTop: 20,
+    flex: 1,
+  },
+  locationItem: {
+    backgroundColor: "#e2e2e2",
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  locationText: {
+    fontSize: 16,
+    fontFamily: "Outfit",
   },
 });
+
+export default SearchPlace;

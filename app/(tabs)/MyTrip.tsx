@@ -1,54 +1,67 @@
-import { StyleSheet, Text, View, ActivityIndicator, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
-import { useEffect, useState } from 'react';
-import StartNewTripCard from '../../components/MyTrips/StartNewTripCard';
-import UserTripList from './../../components/MyTrips/UserTripList';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import StartNewTripCard from "@/components/MyTrips/StartNewTripCard";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { auth, db } from "@/config/FirebaseConfig";
+import UserTripList from "@/components/MyTrips/UserTripList";
+import { useRouter } from "expo-router";
 
 const MyTrip = () => {
-  const [userTrips, setUserTrips] = useState([]);
+  const [userTrips, setUserTrips] = useState<any[]>([]);
+  const user = auth.currentUser;
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
+    user && getMyTrips();
+  }, [user]);
+
+  const getMyTrips = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setUserTrips([]);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    setUserTrips([]);
+    const q = query(
+      collection(db, "UserTrips"),
+      where("userEmail", "==", user?.email)
+    );
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      setUserTrips((prev) => [...prev, doc.data()]);
+    });
+    setLoading(false);
+  };
 
   return (
-    <ScrollView style={styles.mainView}>
-      <View style={styles.flexRowView}>
-        <Text style={styles.title}>My Trip</Text>
-        <Ionicons name="add-circle-outline" size={50} color="black" />
+    <ScrollView
+      className="p-6 h-full mt-10"
+      showsVerticalScrollIndicator={false}
+    >
+      <View className="flex flex-row items-center justify-between">
+        <Text className="text-3xl font-outfit-bold text-purple-700">
+          My Trips
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.push("/create-trip/search-place")}
+        >
+          <Ionicons name="add-circle" size={40} color="#8b5cf6" />
+        </TouchableOpacity>
       </View>
-
-      {loading && <ActivityIndicator size="large" color={Colors.primary} />}
-      {!loading && userTrips.length === 0 && <StartNewTripCard />}
-      {!loading && userTrips.length > 0 && <UserTripList userTrips={userTrips} />}
+      {loading && <ActivityIndicator size="large" color="#8b5cf6" />}
+      {userTrips?.length == 0 ? (
+        <StartNewTripCard />
+      ) : (
+        <UserTripList userTrips={userTrips} />
+      )}
     </ScrollView>
   );
 };
 
 export default MyTrip;
-
-const styles = StyleSheet.create({
-  mainView: {
-    backgroundColor: Colors.white,
-    height: '100%',
-    paddingTop: 40,
-    padding: 25,
-  },
-  title: {
-    fontFamily: 'Outfit-Bold',
-    fontSize: 30,
-    marginTop: 30,
-  },
-  flexRowView: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-  },
-});
