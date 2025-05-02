@@ -28,10 +28,8 @@ const GenerateTrip = () => {
     const travelers = tripData.find((item) => item.travelers)?.travelers;
     const dates = tripData.find((item) => item.dates)?.dates;
     const budget = tripData.find((item) => item.budget)?.budget;
-
     const totalDays = dates?.totalNumberOfDays || 0;
     const totalNights = totalDays > 0 ? totalDays - 1 : 0;
-
     const FINAL_PROMPT = AI_PROMPT.replace(
       "{location}",
       locationInfo?.name || ""
@@ -63,10 +61,10 @@ const GenerateTrip = () => {
   return (
     <SafeAreaView className="p-6 h-full flex flex-col items-center justify-center">
       <Text className="font-outfit-bold text-3xl text-center">
-        Please Wait...
+        Vui lòng chờ...
       </Text>
       <Text className="font-outfit-medium text-xl text-center mt-10">
-        Generating your itinerary...
+        Đang tạo lịch trình du lịch của bạn...
       </Text>
 
       <Image
@@ -75,7 +73,7 @@ const GenerateTrip = () => {
       />
 
       <Text className="font-outfit text-gray-700 text-center mt-10">
-        This might take a while, please do not go back.
+        Việc này có thể mất một chút thời gian, vui lòng không quay lại.
       </Text>
     </SafeAreaView>
   );

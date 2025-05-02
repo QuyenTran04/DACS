@@ -1,38 +1,124 @@
 const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-  } = require("@google/generative-ai");
-  
-  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-  const genAI = new GoogleGenerativeAI(apiKey);
-  
-  const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-  });
-  
-  const generationConfig = {
-    temperature: 1,
-    topP: 0.95,
-    topK: 64,
-    maxOutputTokens: 8192,
-    responseMimeType: "application/json",
-  };
-  
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} = require("@google/generative-ai");
+
+const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(apiKey);
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+});
+
+const generationConfig = {
+  temperature: 1,
+  topP: 0.95,
+  topK: 64,
+  maxOutputTokens: 8192,
+  responseMimeType: "application/json",
+};
+
 export const chatSession = model.startChat({
-      generationConfig,
-      history: [
+  generationConfig,
+  history: [
+    {
+      role: "user",
+      parts: [
         {
-          role: "user",
-          parts: [
-            {text: "Generate a trip plan for the following data: Location - Lucknow, Uttar Pradesh, India. 3 Day(s) and 2 Night(s), for a group size of Couple (2 people), with a Luxury Budget. Include Flight Details, Flight Price with Booking URL, a list of hotel options with Hotel Name, Hotel Address, Price, Hotel Image URL, Geo Coordinates, Rating, Description, and Places to visit nearby with Place Name, Place Details, Place Image URL, Geo Coordinates, Ticket Price, Time to Travel to each of the location. Make sure you give this plan in JSON format."},
-          ],
-        },
-        {
-          role: "model",
-          parts: [
-            {text: "```json\n{\n  \"trip_plan\": {\n    \"location\": \"Lucknow, Uttar Pradesh, India\",\n    \"duration\": \"3 Days and 2 Nights\",\n    \"group_size\": \"Couple (2 people)\",\n    \"budget\": \"Luxury\",\n    \"flight_details\": {\n      \"airline\": \"IndiGo\",\n      \"flight_number\": \"6E-6241\",\n      \"departure_city\": \"Delhi\",\n      \"arrival_city\": \"Lucknow\",\n      \"departure_date\": \"2023-11-17\",\n      \"arrival_date\": \"2023-11-17\",\n      \"departure_time\": \"10:00 AM\",\n      \"arrival_time\": \"11:15 AM\",\n      \"price\": \"₹5,000\",\n      \"booking_url\": \"https://www.goindigo.in/\"\n    },\n    \"hotel\": {\n      \"options\": [\n        {\n          \"name\": \"The Grand Hyatt Lucknow\",\n          \"address\": \"Vibhuti Khand, Gomti Nagar, Lucknow, Uttar Pradesh 226010\",\n          \"price\": \"₹15,000 per night\",\n          \"image_url\": \"https://www.hyatt.com/en-US/hotel/india/the-grand-hyatt-lucknow/lukhg/media/hotel-images/gallery/room-exterior.jpg\",\n          \"geo_coordinates\": {\n            \"latitude\": 26.8374,\n            \"longitude\": 80.9450\n          },\n          \"rating\": 4.5,\n          \"description\": \"A luxurious 5-star hotel with world-class amenities, stunning views, and a prime location in Lucknow.\"\n        },\n        {\n          \"name\": \"The Leela Palace Lucknow\",\n          \"address\": \"Sarojini Naidu Marg, Hazratganj, Lucknow, Uttar Pradesh 226001\",\n          \"price\": \"₹12,000 per night\",\n          \"image_url\": \"https://www.theleela.com/images/hotels/lucknow/leela-palace-lucknow-hotel-exterior.jpg\",\n          \"geo_coordinates\": {\n            \"latitude\": 26.8479,\n            \"longitude\": 80.9387\n          },\n          \"rating\": 4.0,\n          \"description\": \"A heritage hotel offering a blend of luxury and traditional Indian architecture, located in the heart of the city.\"\n        }\n      ]\n    },\n    \"places_to_visit\": [\n      {\n        \"name\": \"Bada Imambara\",\n        \"details\": \"A magnificent 18th-century Shia mosque with a sprawling complex and a labyrinthine maze.\",\n        \"image_url\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bada_Imambara_Lucknow_%282%29.jpg/1280px-Bada_Imambara_Lucknow_%282%29.jpg\",\n        \"geo_coordinates\": {\n          \"latitude\": 26.8488,\n          \"longitude\": 80.9409\n        },\n        \"ticket_price\": \"₹50\",\n        \"time_to_travel\": \"15 minutes from The Grand Hyatt Lucknow\"\n      },\n      {\n        \"name\": \"Chota Imambara\",\n        \"details\": \"A beautiful 19th-century mausoleum known for its intricate architecture and decorative interiors.\",\n        \"image_url\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Chota_Imambara_Lucknow.jpg/1280px-Chota_Imambara_Lucknow.jpg\",\n        \"geo_coordinates\": {\n          \"latitude\": 26.8488,\n          \"longitude\": 80.9409\n        },\n        \"ticket_price\": \"₹30\",\n        \"time_to_travel\": \"5 minutes from Bada Imambara\"\n      },\n      {\n        \"name\": \"Rumi Darwaza\",\n        \"details\": \"An impressive gateway built in the 18th century, known for its grand architecture and historical significance.\",\n        \"image_url\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Rumi_Darwaza_Lucknow_%283%29.jpg/1280px-Rumi_Darwaza_Lucknow_%283%29.jpg\",\n        \"geo_coordinates\": {\n          \"latitude\": 26.8492,\n          \"longitude\": 80.9405\n        },\n        \"ticket_price\": \"Free\",\n        \"time_to_travel\": \"10 minutes from Chota Imambara\"\n      },\n      {\n        \"name\": \"Husainabad Baradari\",\n        \"details\": \"A beautiful garden palace with a central pavilion, offering a peaceful escape and scenic views.\",\n        \"image_url\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Baradari%2C_Lucknow.jpg/1280px-Baradari%2C_Lucknow.jpg\",\n        \"geo_coordinates\": {\n          \"latitude\": 26.8492,\n          \"longitude\": 80.9405\n        },\n        \"ticket_price\": \"₹20\",\n        \"time_to_travel\": \"15 minutes from Rumi Darwaza\"\n      },\n      {\n        \"name\": \"British Residency\",\n        \"details\": \"A historical complex that played a significant role in the Indian Rebellion of 1857, offering insights into Lucknow's colonial past.\",\n        \"image_url\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/British_Residency_Lucknow.jpg/1280px-British_Residency_Lucknow.jpg\",\n        \"geo_coordinates\": {\n          \"latitude\": 26.8488,\n          \"longitude\": 80.9409\n        },\n        \"ticket_price\": \"₹40\",\n        \"time_to_travel\": \"20 minutes from Husainabad Baradari\"\n      }\n    ]\n  }\n}\n```"},
-          ],
+          text: `Tạo kế hoạch chuyến đi cho các dữ liệu sau: Địa điểm - Hà Nội. 4 Ngày và 3 Đêm, cho một cặp đôi (2 người), với ngân sách Cao cấp. Bao gồm thông tin chuyến bay, giá vé máy bay kèm URL đặt vé, danh sách khách sạn gồm Tên, Địa chỉ, Giá, Ảnh, Tọa độ, Đánh giá, Mô tả. Các địa điểm tham quan gần đó với Tên, Mô tả, Ảnh, Tọa độ, Giá vé, Thời gian di chuyển. Trả kết quả dưới định dạng JSON.`,
         },
       ],
-    });
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: `{
+  "trip_plan": {
+    "location": "Hanoi, Vietnam",
+    "duration": "4 Days and 3 Nights",
+    "group_size": "Couple (2 people)",
+    "budget": "Luxury",
+    "flight_details": {
+      "airline": "Vietnam Airlines",
+      "flight_number": "VN-A123",
+      "departure_city": "Ho Chi Minh City",
+      "arrival_city": "Hanoi",
+      "departure_date": "2023-12-10",
+      "arrival_date": "2023-12-10",
+      "departure_time": "9:00 AM",
+      "arrival_time": "10:30 AM",
+      "price": "₫3,500,000",
+      "booking_url": "https://www.vietnamairlines.com/"
+    },
+    "hotel": {
+      "options": [
+        {
+          "name": "Sofitel Legend Metropole Hanoi",
+          "address": "15 Ngo Quyen, Hanoi, Vietnam",
+          "price": "₫8,000,000 per night",
+          "image_url": "https://www.sofitel-legend-metropole-hanoi.com/hotel.jpg",
+          "geo_coordinates": {
+            "latitude": 21.0285,
+            "longitude": 105.8542
+          },
+          "rating": 5.0,
+          "description": "A historic 5-star hotel offering luxury, elegance, and impeccable service in the heart of Hanoi."
+        },
+        {
+          "name": "The Hanoi La Siesta Hotel & Spa",
+          "address": "94 Ma May Street, Hanoi, Vietnam",
+          "price": "₫3,500,000 per night",
+          "image_url": "https://www.hanoilasietahotel.com/image.jpg",
+          "geo_coordinates": {
+            "latitude": 21.0334,
+            "longitude": 105.8517
+          },
+          "rating": 4.7,
+          "description": "A boutique hotel with stylish interiors and a relaxing spa experience."
+        }
+      ]
+    },
+    "places_to_visit": [
+      {
+        "name": "Hoan Kiem Lake",
+        "details": "A scenic lake in the center of Hanoi, surrounded by lush greenery and historical sites.",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Hoan_Kiem_Lake_Hanoi.jpg",
+        "geo_coordinates": {
+          "latitude": 21.0285,
+          "longitude": 105.8542
+        },
+        "ticket_price": "Free",
+        "time_to_travel": "5 minutes from Sofitel Legend Metropole Hanoi"
+      },
+      {
+        "name": "Old Quarter",
+        "details": "The vibrant heart of Hanoi, with narrow streets, historic architecture, and bustling markets.",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Old_Quarter_Hanoi.jpg",
+        "geo_coordinates": {
+          "latitude": 21.0333,
+          "longitude": 105.8518
+        },
+        "ticket_price": "Free",
+        "time_to_travel": "10 minutes from Hoan Kiem Lake"
+      },
+      {
+        "name": "Temple of Literature",
+        "details": "A well-preserved ancient temple dedicated to Confucius and scholars, one of Hanoi's iconic landmarks.",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Temple_of_Literature_Hanoi.jpg",
+        "geo_coordinates": {
+          "latitude": 21.0278,
+          "longitude": 105.8372
+        },
+        "ticket_price": "₫30,000",
+        "time_to_travel": "15 minutes from Old Quarter"
+      }
+    ]
+  }
+}`
+        }
+      ]
+    }
+  ]
+});
