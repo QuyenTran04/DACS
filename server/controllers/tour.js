@@ -11,6 +11,7 @@ exports.createTour = async (req, res) => {
       duration,
       availableDates,
       maxGuests,
+      images, 
     } = req.body;
 
     const location = await Location.findById(locationId);
@@ -19,18 +20,16 @@ exports.createTour = async (req, res) => {
         .status(400)
         .json({ message: "Không tìm thấy tỉnh/thành đã chọn." });
     }
-    // Xử lý danh sách ảnh
-    const imagePaths = req.files.map((file) => "/uploads/" + file.filename);
 
     const newTour = new Tour({
       providerId: req.user.id,
       title,
       description,
-      address, 
-      location: locationId, 
+      address,
+      location: locationId,
       price,
       duration,
-      images: imagePaths,
+      images, 
       availableDates,
       maxGuests,
     });
@@ -44,7 +43,8 @@ exports.createTour = async (req, res) => {
   }
 };
 
-exports.getTour = async (req, res) => {
+
+exports.getToursByProvider = async (req, res) => {
   try {
     const providerID = req.user.id;
     const tour = await Tour.findOne({ providerID });
@@ -57,6 +57,27 @@ exports.getTour = async (req, res) => {
   }
 };
 
+exports.getTour = async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+    if (!tour) return res.status(404).json({ message: "Không tìm thấy tour" });
+    res.json({ tour });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
+exports.getListTour = async (req, res) => {
+  try {
+    const tour = await Tour.find();
+    if (!tour) {
+      return res.status(404).json({ message: "Tour không tồn tại" });
+    }
+    res.status(200).json({ tour });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+};
 
 exports.getToursByLocation = async (req, res) => {
   try {
