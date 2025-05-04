@@ -43,8 +43,8 @@ const SearchPlace = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Where do you want to go?</Text>
-          <Text style={styles.subtitle}>Find your destination!</Text>
+          <Text style={styles.title}>Bạn muốn đi đâu ?</Text>
+          <Text style={styles.subtitle}>Định vị nơi đến của bạn ngay</Text>
         </View>
 
         <View style={styles.listContainer}>
