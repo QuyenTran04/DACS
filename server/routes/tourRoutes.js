@@ -8,12 +8,11 @@ const upload = require("../middlewares/upload");
 
 router.post("/createTour", role.authenticateToken, role.authorizeRole(["provider","admin"]), upload.array("images"), Tour.createTour);
 router.get(
-  "/getTour",
+  "/getTourByProvider",
   role.authenticateToken,
   role.authorizeRole(["provider", "admin"]),
-  Tour.getTour
+  Tour.getToursByProvider
 );
-
 router.put(
   "/updateTour",
   role.authenticateToken,
@@ -33,5 +32,6 @@ router.put(
   role.authenticateToken,
   Tour.getToursByLocation
 );
-
+router.get("/listTour", Tour.getListTour);
+router.get("/getTour/:id", Tour.getTour);
 module.exports = router;
