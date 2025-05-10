@@ -58,10 +58,10 @@ const SelectTraveler = () => {
     <SafeAreaView className="flex-1">
       <View className="p-6">
         <Text className="text-5xl font-outfit-bold mb-2">
-          Who's Travelling?
+          Ai sẽ đi cùng bạn?
         </Text>
         <Text className="text-gray-500 font-outfit-medium mb-6">
-          Choose your travelers
+          Chọn số lượng và loại người đi cùng bạn trong chuyến đi này.
         </Text>
 
         <FlatList

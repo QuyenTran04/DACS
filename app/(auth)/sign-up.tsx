@@ -19,7 +19,7 @@ const SignUp = () => {
   const onSignUpPress = async () => {
     try {
       if (!form.email || !form.password || !form.name) {
-        alert("Please fill in all fields");
+        alert("Vui lòng điền đầy đủ thông tin");
         return;
       }
 
@@ -29,26 +29,26 @@ const SignUp = () => {
         form.password
       );
 
-      // Successfully created user
+      // Tạo tài khoản thành công
       const user = userCredential.user;
       console.log(user);
 
-      // Navigate to the main app
+      // Điều hướng đến trang chính
       router.replace("/(tabs)/mytrip");
     } catch (error: any) {
-      // Handle specific Firebase auth errors
+      // Xử lý lỗi xác thực Firebase cụ thể
       switch (error.code) {
         case "auth/email-already-in-use":
-          alert("This email is already registered");
+          alert("Email này đã được đăng ký");
           break;
         case "auth/invalid-email":
-          alert("Invalid email address");
+          alert("Địa chỉ email không hợp lệ");
           break;
         case "auth/weak-password":
-          alert("Password should be at least 6 characters");
+          alert("Mật khẩu phải có ít nhất 6 ký tự");
           break;
         default:
-          alert("Error creating account: " + error.message);
+          alert("Lỗi khi tạo tài khoản: " + error.message);
       }
       console.error(error);
     }
@@ -63,35 +63,35 @@ const SignUp = () => {
             className="z-0 w-full h-72"
           />
           <Text className="text-3xl font-outfit-bold absolute bottom-0 left-5">
-            Create Your Account
+            Tạo Tài Khoản Mới
           </Text>
         </View>
 
         <View className="p-5">
           <InputField
-            label="Name"
-            placeholder="Enter your name"
+            label="Họ và tên"
+            placeholder="Nhập họ và tên của bạn"
             icon={icons.person}
             value={form.name}
             onChangeText={(value) => setForm({ ...form, name: value })}
           />
           <InputField
             label="Email"
-            placeholder="Enter your email address"
+            placeholder="Nhập địa chỉ email"
             icon={icons.email}
             value={form.email}
             onChangeText={(value) => setForm({ ...form, email: value })}
           />
           <InputField
-            label="Password"
-            placeholder="Enter a good password"
+            label="Mật khẩu"
+            placeholder="Nhập mật khẩu"
             icon={icons.lock}
             secureTextEntry={true}
             value={form.password}
             onChangeText={(value) => setForm({ ...form, password: value })}
           />
           <CustomButton
-            title={isLoading ? "Creating Account..." : "Sign Up"}
+            title={isLoading ? "Đang tạo tài khoản..." : "Đăng ký"}
             onPress={onSignUpPress}
             className="mt-6"
             disabled={isLoading}
@@ -102,8 +102,8 @@ const SignUp = () => {
             href="/(auth)/sign-in"
             className="text-lg text-center mt-10 font-outfit-medium"
           >
-            <Text className="">Already have an account? </Text>
-            <Text className="text-purple-500">Sign In</Text>
+            <Text>Đã có tài khoản? </Text>
+            <Text className="text-purple-500">Đăng nhập</Text>
           </Link>
         </View>
       </View>

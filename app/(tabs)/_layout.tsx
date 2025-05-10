@@ -57,6 +57,19 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="tourpage"
+        options={{
+          tabBarLabel: "Tour Page",
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name="earth"
+              size={24}
+              color={focused ? "#8b5cf6" : "#64748b"}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
