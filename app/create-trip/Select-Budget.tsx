@@ -44,10 +44,10 @@ const SelectBudget = () => {
     <SafeAreaView className="flex justify-center mt-20">
       <View className="p-6">
         <Text className="text-5xl font-outfit-bold mb-2">
-          Define your budget
+          Chọn ngân sách của bạn
         </Text>
         <Text className="text-gray-500 font-outfit-medium mb-12">
-          Pick a category that best fits you
+          Chọn ngân sách cho chuyến đi của bạn.
         </Text>
 
         <FlatList

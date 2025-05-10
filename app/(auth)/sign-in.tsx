@@ -18,7 +18,7 @@ const SignIn = () => {
   const onLoginPress = async () => {
     try {
       if (!form.email || !form.password) {
-        alert("Please fill in all fields");
+        alert("Vui lòng điền đầy đủ thông tin");
         return;
       }
 
@@ -28,29 +28,29 @@ const SignIn = () => {
         form.password
       );
 
-      // Successfully signed in
+      // Đăng nhập thành công
       const user = userCredential.user;
       console.log(user);
 
-      // Navigate to the main app
+      // Điều hướng đến màn hình chính
       router.replace("/(tabs)/mytrip");
     } catch (error: any) {
-      // Handle specific Firebase auth errors
+      // Xử lý lỗi xác thực Firebase cụ thể
       switch (error.code) {
         case "auth/invalid-email":
-          alert("Invalid email address");
+          alert("Địa chỉ email không hợp lệ");
           break;
         case "auth/user-disabled":
-          alert("This account has been disabled");
+          alert("Tài khoản này đã bị vô hiệu hóa");
           break;
         case "auth/user-not-found":
-          alert("No account found with this email");
+          alert("Không tìm thấy tài khoản với email này");
           break;
         case "auth/wrong-password":
-          alert("Incorrect password");
+          alert("Mật khẩu không đúng");
           break;
         default:
-          alert("Error signing in: " + error.message);
+          alert("Lỗi khi đăng nhập: " + error.message);
       }
       console.error(error);
     }
@@ -65,28 +65,28 @@ const SignIn = () => {
             className="z-0 w-full h-72"
           />
           <Text className="text-3xl font-outfit-bold absolute bottom-0 left-5">
-            Welcome Back, Log In!
+            Chào mừng trở lại !
           </Text>
         </View>
 
         <View className="p-5">
           <InputField
             label="Email"
-            placeholder="Enter your email address"
+            placeholder="Nhập địa chỉ email của bạn"
             icon={icons.email}
             value={form.email}
             onChangeText={(value) => setForm({ ...form, email: value })}
           />
           <InputField
-            label="Password"
-            placeholder="Enter a good password"
+            label="Mật khẩu"
+            placeholder="Nhập mật khẩu"
             icon={icons.lock}
             secureTextEntry={true}
             value={form.password}
             onChangeText={(value) => setForm({ ...form, password: value })}
           />
           <CustomButton
-            title={isLoading ? "Logging In..." : "Log In"}
+            title={isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
             onPress={onLoginPress}
             className="mt-6"
             disabled={isLoading}
@@ -98,8 +98,8 @@ const SignIn = () => {
             href="/(auth)/sign-up"
             className="text-lg text-center mt-10 font-outfit-medium"
           >
-            <Text className="">New to Avent? </Text>
-            <Text className="text-purple-500">Sign Up</Text>
+            <Text>Chưa có tài khoản ? </Text>
+            <Text className="text-purple-500">Đăng ký</Text>
           </Link>
         </View>
       </View>

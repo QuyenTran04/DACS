@@ -84,10 +84,10 @@ const SelectDates = () => {
     <SafeAreaView className="flex-1">
       <View className="px-2 py-6">
         <Text className="text-5xl font-outfit-bold mb-2 px-4">
-          When are you traveling?
+          Khi nào bạn đi?
         </Text>
         <Text className="text-gray-500 font-outfit-medium mb-6 px-5">
-          Select your travel dates
+          Chọn ngày bắt đầu và kết thúc chuyến đi của bạn.
         </Text>
 
         <View className="bg-white rounded-xl shadow-sm border border-neutral-100 p-4">

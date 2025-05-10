@@ -50,7 +50,7 @@ const ReviewTrip = () => {
       <View className="p-6">
         <Text className="text-5xl font-outfit-bold mb-2">Review Your Trip</Text>
         <Text className="text-gray-500 font-outfit-medium mb-8">
-          You can always edit your trip details
+          bạn có thể chỉnh sửa thông tin chuyến đi của mình ở đây.
         </Text>
 
         {renderReviewItem(
