@@ -2,7 +2,7 @@ const Location = require("../models/Location");
 
 exports.addLocations = async (req, res) => {
   try {
-    const { name, country } = req.body; 
+    const { name } = req.body; 
     if (!name) {
       return res
         .status(400)
@@ -14,7 +14,6 @@ exports.addLocations = async (req, res) => {
     }
     const newLocation = new Location({
       name,
-      country: country || "Việt Nam", 
     });
     await newLocation.save();
     res

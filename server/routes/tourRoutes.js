@@ -4,16 +4,16 @@ const router = express.Router();
 const role = require("../middlewares/authMiddleware");
 const upload = require("../middlewares/upload");
 
-
-
-router.post("/createTour", role.authenticateToken, role.authorizeRole(["provider","admin"]), upload.array("images"), Tour.createTour);
+router.post(
+  "/createTour",
+  Tour.createTour
+);
 router.get(
-  "/getTour",
+  "/getTourByProvider",
   role.authenticateToken,
   role.authorizeRole(["provider", "admin"]),
-  Tour.getTour
+  Tour.getToursByProvider
 );
-
 router.put(
   "/updateTour",
   role.authenticateToken,
@@ -28,10 +28,7 @@ router.delete(
   Tour.deleteTour
 );
 
-router.put(
-  "/findTour",
-  role.authenticateToken,
-  Tour.getToursByLocation
-);
-
+router.put("/findTour", role.authenticateToken, Tour.getToursByLocation);
+router.get("/listTour", Tour.getListTour);
+router.get("/getTour/:id", Tour.getTour);
 module.exports = router;
