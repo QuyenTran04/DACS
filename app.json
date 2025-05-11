@@ -2,6 +2,7 @@
   "expo": {
     "name": "Quyenne",
     "slug": "Quyenne",
+    "owner": "dacs_mobileapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.dacs_mobileapp.Quyenne"
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +34,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "639f3d83-2665-4f20-89bf-201d6a4ff300"
+      }
     }
   }
 }
