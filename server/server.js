@@ -6,7 +6,6 @@ const authRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const tourRoutes = require("./routes/tourRoutes");
-
 const locationRoutes = require("./routes/locationRoutes");
 
 const momoRoutes = require("./routes/momoRoutes");
@@ -34,3 +33,4 @@ app.use("/api/booking", bookingRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server chạy trên cổng ${PORT}`));
+

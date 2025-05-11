@@ -32,3 +32,4 @@ router.put("/findTour", role.authenticateToken, Tour.getToursByLocation);
 router.get("/listTour", Tour.getListTour);
 router.get("/getTour/:id", Tour.getTour);
 module.exports = router;
+
