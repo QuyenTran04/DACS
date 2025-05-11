@@ -1,3 +1,4 @@
+
 const Tour = require("../models/tour");
 const Location = require("../models/Location");
 
