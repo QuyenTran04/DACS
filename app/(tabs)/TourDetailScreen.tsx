@@ -8,16 +8,18 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 
 const TourDetailScreen = () => {
-  const { tourId } = useLocalSearchParams();
+  const { tourId } = useLocalSearchParams(); // Lấy tourId từ query params
   const [tour, setTour] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const router = useRouter();
 
+  // Fetch thông tin tour
   useEffect(() => {
     const fetchTourDetail = async () => {
       try {
@@ -35,6 +37,7 @@ const TourDetailScreen = () => {
     if (tourId) fetchTourDetail();
   }, [tourId]);
 
+  // Nếu đang tải, hiển thị loading
   if (loading) {
     return (
       <View style={styles.center}>
@@ -44,6 +47,7 @@ const TourDetailScreen = () => {
     );
   }
 
+  // Nếu không tìm thấy tour
   if (!tour) {
     return (
       <View style={styles.center}>
@@ -51,6 +55,19 @@ const TourDetailScreen = () => {
       </View>
     );
   }
+
+  // Xử lý khi người dùng nhấn "Đặt tour"
+  const handleBooking = () => {
+    if (!selectedDate) {
+      alert("Vui lòng chọn ngày trước khi đặt tour.");
+    } else {
+      const query = new URLSearchParams({
+        tourId: tourId as string,
+        selectedDate: selectedDate,
+      }).toString();
+      router.push(`/booking?${query}`);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -131,19 +148,9 @@ const TourDetailScreen = () => {
         })}
       </View>
 
-      {/* Nút Đặt tour cố định dưới cùng */}
       <TouchableOpacity
         style={styles.bookButton}
-        onPress={() => {
-          if (!selectedDate) {
-            alert("Vui lòng chọn ngày trước khi đặt tour.");
-          } else {
-            const formatted = new Date(selectedDate).toLocaleDateString(
-              "vi-VN"
-            );
-            alert(`Bạn đã chọn ngày: ${formatted}`);
-          }
-        }}
+        onPress={handleBooking} // Gọi handleBooking khi nhấn nút
       >
         <Text style={styles.bookButtonText}>Đặt tour ngay</Text>
       </TouchableOpacity>
@@ -155,7 +162,7 @@ export default TourDetailScreen;
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: 100, // Thêm padding dưới cùng để tránh bị che khuất bởi nút cố định
+    paddingBottom: 100,
     paddingHorizontal: 20,
     backgroundColor: "#f9f9f9",
   },
@@ -182,12 +189,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderWidth: 2,
     borderColor: "#ddd",
-    backgroundColor: "#fff", // Tạo nền trắng cho ảnh
+    backgroundColor: "#fff",
   },
   image: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover", // Giữ tỷ lệ ảnh nhưng lấp đầy không gian
+    resizeMode: "cover",
   },
   title: {
     fontSize: 26,

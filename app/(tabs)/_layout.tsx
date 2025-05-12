@@ -46,6 +46,19 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="tourpage"
+        options={{
+          tabBarLabel: "tour",
+          tabBarIcon: ({ focused }) => (
+            <MaterialIcons
+              name="map"
+              size={24}
+              color={focused ? "#8b5cf6" : "#64748b"}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           tabBarLabel: "Profile",
@@ -53,6 +66,20 @@ export default function TabLayout() {
             <FontAwesome
               name="user-o"
               size={21}
+              color={focused ? "#8b5cf6" : "#64748b"}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="TourDetailScreen"
+        options={{
+          href: null,
+          tabBarLabel: "tour",
+          tabBarIcon: ({ focused }) => (
+            <MaterialIcons
+              name="map"
+              size={24}
               color={focused ? "#8b5cf6" : "#64748b"}
             />
           ),

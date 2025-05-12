@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
   {
-    userId: { type: Number, ref: "Account", required: true },
+    userId: { type: String, required: true },
     tourId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Tour",
@@ -17,6 +17,14 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
     },
     note: { type: String, default: "" },
+
+    // ✅ Thêm các trường thông tin liên hệ
+    contactInfo: {
+      fullName: { type: String, required: true },
+      phoneNumber: { type: String, required: true },
+      email: { type: String, required: true },
+    },
+
     totalPrice: { type: Number, required: true, min: 0 },
     payment: {
       method: {
