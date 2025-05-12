@@ -28,6 +28,7 @@
     "dotenv": "^16.5.0",
     "expo": "^52.0.46",
     "expo-constants": "~17.0.8",
+    "expo-dev-client": "~5.0.20",
     "expo-file-system": "~18.0.12",
     "expo-font": "~13.0.4",
     "expo-image-picker": "~16.0.6",
@@ -38,6 +39,7 @@
     "expo-system-ui": "~4.0.9",
     "expo-web-browser": "~14.0.2",
     "firebase": "^11.6.1",
+    "keytar": "^7.9.0",
     "mime": "^4.0.7",
     "moment": "^2.30.1",
     "nativewind": "^4.1.21",
@@ -56,8 +58,7 @@
     "react-native-swiper": "^1.6.0",
     "react-native-web": "~0.19.10",
     "tailwindcss": "^3.4.14",
-    "uuid": "^11.1.0",
-    "expo-dev-client": "~5.0.20"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
