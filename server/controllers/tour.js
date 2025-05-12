@@ -88,7 +88,7 @@ exports.getToursByProvider = async (req, res) => {
 
 exports.getTour = async (req, res) => {
   try {
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).populate("location").lean();
     if (!tour) return res.status(404).json({ message: "Không tìm thấy tour" });
     res.json({ tour });
   } catch (error) {
@@ -98,13 +98,28 @@ exports.getTour = async (req, res) => {
 
 exports.getListTour = async (req, res) => {
   try {
-    const tour = await Tour.find();
-    if (!tour) {
-      return res.status(404).json({ message: "Tour không tồn tại" });
-    }
-    res.status(200).json({ tour });
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi server", error });
+    const tours = await Tour.find().populate("location").lean(); // dùng lean() để dữ liệu gọn nhẹ
+
+    const tourListWithBase64 = tours.map((tour) => {
+      const firstImage = tour.images?.[0];
+
+      // Nếu có ảnh thì chuyển sang base64
+      const base64Image = firstImage
+        ? `data:${firstImage.contentType};base64,${firstImage.data.toString(
+            "base64"
+          )}`
+        : null;
+
+      return {
+        ...tour,
+        image: base64Image, // thêm trường mới vào object trả về
+      };
+    });
+
+    res.json({ success: true, tour: tourListWithBase64 });
+  } catch (err) {
+    console.error("Lỗi khi lấy danh sách tour:", err);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
