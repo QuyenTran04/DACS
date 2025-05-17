@@ -7,7 +7,9 @@ const adminRoutes = require("./routes/adminRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const tourRoutes = require("./routes/tourRoutes");
 const locationRoutes = require("./routes/locationRoutes");
+
 const paymentRoutes = require("./routes/payment");
+
 const momoRoutes = require("./routes/momoRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 
@@ -22,6 +24,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/profile", profileRoutes);
+
 
 app.use("/api/",tourRoutes);
 app.use("/api/locations", locationRoutes);

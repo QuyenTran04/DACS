@@ -46,6 +46,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+
         name="tourpage"
         options={{
           tabBarLabel: "Tour",
@@ -59,6 +60,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+
         name="profile"
         options={{
           tabBarLabel: "Profile",
@@ -71,6 +73,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="TourDetailScreen"
         options={{
@@ -99,6 +102,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
     </Tabs>
   );
 }

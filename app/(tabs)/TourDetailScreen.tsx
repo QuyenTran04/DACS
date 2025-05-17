@@ -8,11 +8,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 
 const TourDetailScreen = () => {
+
   const { tourId } = useLocalSearchParams(); // Lấy tourId từ query params
   const [tour, setTour] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,7 @@ const TourDetailScreen = () => {
     const fetchTourDetail = async () => {
       try {
         const res = await axios.get(
+
           `http://192.168.1.8:5000/api/tour/getTour/${tourId}`
         );
         setTour(res.data.tour);
@@ -37,7 +40,6 @@ const TourDetailScreen = () => {
     if (tourId) fetchTourDetail();
   }, [tourId]);
 
-  // Nếu đang tải, hiển thị loading
   if (loading) {
     return (
       <View style={styles.center}>
@@ -47,7 +49,7 @@ const TourDetailScreen = () => {
     );
   }
 
-  // Nếu không tìm thấy tour
+
   if (!tour) {
     return (
       <View style={styles.center}>
@@ -55,6 +57,7 @@ const TourDetailScreen = () => {
       </View>
     );
   }
+
 
   // Xử lý khi người dùng nhấn "Đặt tour"
   const handleBooking = () => {
@@ -68,6 +71,7 @@ const TourDetailScreen = () => {
       router.push(`/booking?${query}`);
     }
   };
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -148,6 +152,7 @@ const TourDetailScreen = () => {
         })}
       </View>
 
+
       <TouchableOpacity
         style={styles.bookButton}
         onPress={handleBooking} // Gọi handleBooking khi nhấn nút
@@ -162,7 +167,9 @@ export default TourDetailScreen;
 
 const styles = StyleSheet.create({
   container: {
+
     paddingBottom: 100,
+
     paddingHorizontal: 20,
     backgroundColor: "#f9f9f9",
   },
@@ -189,12 +196,16 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderWidth: 2,
     borderColor: "#ddd",
+
     backgroundColor: "#fff",
+
   },
   image: {
     width: "100%",
     height: "100%",
+
     resizeMode: "cover",
+
   },
   title: {
     fontSize: 26,

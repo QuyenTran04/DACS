@@ -6,6 +6,7 @@ const axios = require("axios");
 
 exports.createBooking = async (req, res) => {
   try {
+
     const { uid } = req.user;
     const {
       tourId,
@@ -42,6 +43,7 @@ exports.createBooking = async (req, res) => {
     const booking = await Booking.create({
       tourId,
       userId: uid,
+
       numberOfGuests,
       selectedDate,
       note,
@@ -49,6 +51,7 @@ exports.createBooking = async (req, res) => {
       status: paymentMethod === "cod" ? "confirmed" : "pending",
       payment: {
         method: paymentMethod,
+
         status: "unpaid",
       },
       contactInfo: {
@@ -59,10 +62,12 @@ exports.createBooking = async (req, res) => {
     });
 
     // Nếu thanh toán qua Momo
+
     if (paymentMethod === "momo") {
       const orderId = `${booking._id}-${Date.now()}`;
       const requestId = orderId;
       const orderInfo = `Thanh toán tour ${tour.title}`;
+
       const amount = String(totalPrice); // Đảm bảo là chuỗi
       const extraData = "";
 
@@ -70,6 +75,7 @@ exports.createBooking = async (req, res) => {
       const redirectUrl = momoConfig.redirectUrl;
 
       const rawSignature = `accessKey=${momoConfig.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${momoConfig.partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=captureWallet`;
+
 
       const signature = crypto
         .createHmac("sha256", momoConfig.secretKey)
@@ -83,13 +89,16 @@ exports.createBooking = async (req, res) => {
         amount,
         orderId,
         orderInfo,
+
         redirectUrl,
         ipnUrl,
+
         extraData,
         requestType: "captureWallet",
         signature,
         lang: "vi",
       };
+
 
       console.log("Yêu cầu gửi đến Momo:", momoRequest);
 
@@ -115,12 +124,15 @@ exports.createBooking = async (req, res) => {
     }
 
     // Nếu là thanh toán COD
+
     return res.status(200).json({
       message: "Đặt tour thành công",
       bookingId: booking._id,
     });
   } catch (err) {
+
     console.error("Lỗi khi tạo booking:", err);
     res.status(500).json({ message: "Lỗi khi tạo booking hoặc thanh toán" });
   }
 };
+
