@@ -25,7 +25,7 @@ const TourPage = () => {
     const fetchTourList = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.3.21:5000/api/tour/listTour"
+          "http://192.168.1.8:5000/api/tour/listTour"
         );
         setTourList(response.data.tour || []);
       } catch (error) {

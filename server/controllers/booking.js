@@ -6,7 +6,7 @@ const axios = require("axios");
 
 exports.createBooking = async (req, res) => {
   try {
-    const { uid, } = req.user;
+    const { uid } = req.user;
     const {
       tourId,
       numberOfGuests,
@@ -63,10 +63,13 @@ exports.createBooking = async (req, res) => {
       const orderId = `${booking._id}-${Date.now()}`;
       const requestId = orderId;
       const orderInfo = `Thanh toán tour ${tour.title}`;
-      const amount = totalPrice;
+      const amount = String(totalPrice); // Đảm bảo là chuỗi
       const extraData = "";
 
-      const rawSignature = `accessKey=${momoConfig.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${momoConfig.ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${momoConfig.partnerCode}&redirectUrl=${momoConfig.redirectUrl}&requestId=${requestId}&requestType=captureWallet`;
+      const ipnUrl = `${process.env.SERVER_URL}/api/payment/momo-ipn`;
+      const redirectUrl = momoConfig.redirectUrl;
+
+      const rawSignature = `accessKey=${momoConfig.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${momoConfig.partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=captureWallet`;
 
       const signature = crypto
         .createHmac("sha256", momoConfig.secretKey)
@@ -80,34 +83,44 @@ exports.createBooking = async (req, res) => {
         amount,
         orderId,
         orderInfo,
-        redirectUrl: momoConfig.redirectUrl,
-        ipnUrl: momoConfig.ipnUrl,
+        redirectUrl,
+        ipnUrl,
         extraData,
         requestType: "captureWallet",
         signature,
         lang: "vi",
       };
 
-      const momoRes = await axios.post(momoConfig.endpoint, momoRequest, {
-        headers: { "Content-Type": "application/json" },
-      });
+      console.log("Yêu cầu gửi đến Momo:", momoRequest);
 
-      return res.status(200).json({
-        message: "Đặt tour thành công",
-        bookingId: booking._id,
-        payUrl: momoRes.data.payUrl,
-      });
+      try {
+        const momoRes = await axios.post(momoConfig.endpoint, momoRequest, {
+          headers: { "Content-Type": "application/json" },
+        });
+
+        return res.status(200).json({
+          message: "Đặt tour thành công",
+          bookingId: booking._id,
+          payUrl: momoRes.data.payUrl,
+        });
+      } catch (momoErr) {
+        console.error(
+          "Lỗi từ Momo:",
+          momoErr.response?.data || momoErr.message
+        );
+        return res
+          .status(500)
+          .json({ message: "Gọi thanh toán Momo thất bại" });
+      }
     }
 
+    // Nếu là thanh toán COD
     return res.status(200).json({
       message: "Đặt tour thành công",
       bookingId: booking._id,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Lỗi khi tạo booking:", err);
     res.status(500).json({ message: "Lỗi khi tạo booking hoặc thanh toán" });
   }
 };
-
-
-//hủy booking
