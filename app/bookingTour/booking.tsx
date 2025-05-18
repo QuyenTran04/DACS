@@ -8,7 +8,7 @@ import {
   TextInput,
   ScrollView,
   Linking,
-} from "react-native";
+} from "react-native";  
 import { getAuth } from "firebase/auth";
 import axios from "axios";
 import { Picker } from "@react-native-picker/picker";

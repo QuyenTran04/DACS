@@ -124,3 +124,22 @@ exports.createBooking = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi tạo booking hoặc thanh toán" });
   }
 };
+
+exports.getBookingHistory = async (req, res) => {
+  try {
+    const { uid } = req.user;
+
+    // Lấy danh sách booking theo userId
+    const bookings = await Booking.find({ userId: uid })
+      .populate("tourId", "title price image") // Lấy thêm thông tin tour
+      .sort({ createdAt: -1 }); // Sắp xếp mới nhất trước
+
+    res.status(200).json({
+      message: "Lấy lịch sử đặt tour thành công",
+      bookings,
+    });
+  } catch (err) {
+    console.error("Lỗi khi lấy lịch sử booking:", err);
+    res.status(500).json({ message: "Lỗi server khi lấy lịch sử đặt tour" });
+  }
+};

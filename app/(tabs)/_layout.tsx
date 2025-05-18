@@ -71,34 +71,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="TourDetailScreen"
-        options={{
-          href: null,
-          tabBarLabel: "tour",
-          tabBarIcon: ({ focused }) => (
-            <MaterialIcons
-              name="map"
-              size={24}
-              color={focused ? "#8b5cf6" : "#64748b"}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="booking"
-        options={{
-          href: null,
-          tabBarLabel: "tour",
-          tabBarIcon: ({ focused }) => (
-            <MaterialIcons
-              name="map"
-              size={24}
-              color={focused ? "#8b5cf6" : "#64748b"}
-            />
-          ),
-        }}
-      />
     </Tabs>
   );
 }

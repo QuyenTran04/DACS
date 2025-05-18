@@ -65,7 +65,7 @@ const TourDetailScreen = () => {
         tourId: tourId as string,
         selectedDate: selectedDate,
       }).toString();
-      router.push(`/booking?${query}`);
+      router.push(`/bookingTour/booking?${query}`);
     }
   };
 

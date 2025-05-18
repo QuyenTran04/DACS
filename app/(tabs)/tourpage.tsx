@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import CategoryButtons from "@/components/CategoryButtons";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 const TourPage = () => {
   const headerHeight = useHeaderHeight();
@@ -20,6 +21,14 @@ const TourPage = () => {
   const [tourList, setTourList] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isNavigating, setIsNavigating] = useState<boolean>(false);
+
+  // Reset isNavigating mỗi khi màn hình được focus (quay lại)
+  useFocusEffect(
+    useCallback(() => {
+      setIsNavigating(false);
+    }, [])
+  );
 
   useEffect(() => {
     const fetchTourList = async () => {
@@ -52,12 +61,14 @@ const TourPage = () => {
   const renderTour = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() =>
+      onPress={() => {
+        setIsNavigating(true);
         router.push({
-          pathname: "/(tabs)/TourDetailScreen",
+          pathname: "/bookingTour/TourDetailScreen",
           params: { tourId: item._id },
-        })
-      }
+        });
+      }}
+      disabled={isNavigating} // Disable khi đang navigating để tránh nhấn liên tục
     >
       <Image
         source={{ uri: item.image || "https://via.placeholder.com/150" }}
@@ -106,6 +117,15 @@ const TourPage = () => {
         }}
       />
       <View style={[styles.container, { paddingTop: headerHeight }]}>
+        {(loading || isNavigating) && (
+          <View style={styles.loadingOverlay}>
+            <Ionicons name="refresh" size={40} color="#8b5cf6" />
+            <Text style={styles.loadingText}>
+              {loading ? "Đang tải dữ liệu..." : "Đang chuyển trang..."}
+            </Text>
+          </View>
+        )}
+
         <FlatList
           data={filteredTours}
           keyExtractor={(item) => item._id}
@@ -135,10 +155,6 @@ const TourPage = () => {
               </View>
 
               <CategoryButtons onCategoryChanged={onCatChanged} />
-
-              {loading && (
-                <Text style={styles.loadingText}>Đang tải dữ liệu...</Text>
-              )}
             </>
           }
           showsVerticalScrollIndicator={false}
@@ -216,7 +232,7 @@ const styles = StyleSheet.create({
     color: "#8b5cf6",
     fontSize: 16,
     textAlign: "center",
-    marginTop: 20,
+    marginTop: 10,
   },
   emptyText: {
     color: "#999",
@@ -276,5 +292,16 @@ const styles = StyleSheet.create({
     color: "#8b5cf6",
     fontSize: 14,
     fontWeight: "500",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
   },
 });
