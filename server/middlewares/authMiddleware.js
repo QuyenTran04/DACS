@@ -1,24 +1,26 @@
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const admin = require("../config/firebaseAdmin");
 
 dotenv.config();
 
-exports.authenticateToken = (req, res, next) => {
+exports.authenticateToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Không có token xác thực" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
   try {
-    const authHeader = req.header("Authorization");
-    if (!authHeader) {
-      return res.status(401).json({ message: "Chưa đăng nhập" });
-    }
-    const token = authHeader.split(" ")[1]; 
-    if (!token) {
-      return res.status(401).json({ message: "Token không hợp lệ" });
-    }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next(); 
-  } catch (err) {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = decodedToken; // Thông tin user (uid, email, v.v)
+    next();
+  } catch (error) {
+    console.error("Firebase token error:", error);
     return res
-      .status(403)
+      .status(401)
       .json({ message: "Token không hợp lệ hoặc đã hết hạn" });
   }
 };

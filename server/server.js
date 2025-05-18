@@ -7,7 +7,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const tourRoutes = require("./routes/tourRoutes");
 const locationRoutes = require("./routes/locationRoutes");
-
+const paymentRoutes = require("./routes/payment");
 const momoRoutes = require("./routes/momoRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 
@@ -29,7 +29,7 @@ app.use("/api/locations", locationRoutes);
 app.use("/api/tour",tourRoutes);
 app.use("/api/momo", momoRoutes);
 app.use("/api/booking", bookingRoutes);
-
+app.use("/api/payment", paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server chạy trên cổng ${PORT}`));
