@@ -2,8 +2,9 @@ import { View, Text, ScrollView, Image, Linking } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import moment from "moment";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
+import { Picker } from "@react-native-picker/picker";
 
 const DEFAULT_IMAGE_URL =
   "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?q=80&w=2071&auto=format&fit=crop";
@@ -39,7 +40,6 @@ const Discover = () => {
       setParsedTripData(JSON.parse(tripData as string));
       setParsedTripPlan(parsedTrip);
 
-      // Fetch images for hotels
       parsedTrip.trip_plan.hotel.options.forEach(
         async (hotel: any, index: number) => {
           const imageUrl = await fetchPlaceImage(hotel.name);
@@ -58,7 +58,6 @@ const Discover = () => {
         }
       );
 
-      // Fetch images for places to visit
       parsedTrip.trip_plan.places_to_visit.forEach(
         async (place: any, index: number) => {
           const imageUrl = await fetchPlaceImage(place.name);
@@ -91,6 +90,28 @@ const Discover = () => {
     const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
     Linking.openURL(url);
   };
+  const generateBookingUrl = () => {
+    const flight = parsedTripPlan.trip_plan.flight_details;
+
+    const params = new URLSearchParams({
+      departure: flight.departure_city,
+      arrival: flight.arrival_city,
+      departure_date: flight.departure_date,
+      airline: flight.airline,
+      price: flight.price,
+    });
+
+    return `${flight.booking_url}?${params.toString()}`;
+  };
+  
+
+  const cities = [
+    "Ho Chi Minh City",
+    "Hanoi",
+    "Da Nang",
+    "Singapore",
+    "Bangkok",
+  ];
 
   return (
     <ScrollView
@@ -112,15 +133,40 @@ const Discover = () => {
         <Text className="font-outfit text-gray-600">
           Budget: {parsedTripPlan.trip_plan.budget}
         </Text>
-        {/* <Text className="font-outfit text-gray-600">
-          Group Size: {parsedTripPlan.group_size}
-        </Text> */}
       </View>
 
       {/* Flight Details */}
       <View className="mb-8">
         <Text className="text-2xl font-outfit-bold mb-4">Flight Details</Text>
         <View className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+          {/* Dropdown để chọn thành phố khởi hành */}
+          <Text className="font-outfit text-gray-600 mb-2">
+            Change Departure City:
+          </Text>
+          <View className="border border-gray-300 rounded-lg bg-white mb-4">
+            <Picker
+              selectedValue={
+                parsedTripPlan.trip_plan.flight_details.departure_city
+              }
+              onValueChange={(itemValue) =>
+                setParsedTripPlan((prev: any) => ({
+                  ...prev,
+                  trip_plan: {
+                    ...prev.trip_plan,
+                    flight_details: {
+                      ...prev.trip_plan.flight_details,
+                      departure_city: itemValue,
+                    },
+                  },
+                }))
+              }
+            >
+              {cities.map((city) => (
+                <Picker.Item label={city} value={city} key={city} />
+              ))}
+            </Picker>
+          </View>
+
           <View className="flex-row justify-between items-center mb-4">
             <View>
               <Text className="font-outfit-bold text-lg">
@@ -142,6 +188,7 @@ const Discover = () => {
               </Text>
             </View>
           </View>
+
           <View className="border-t border-gray-200 pt-4">
             <Text className="font-outfit text-gray-600">
               Airline: {parsedTripPlan.trip_plan.flight_details.airline}
@@ -154,11 +201,21 @@ const Discover = () => {
             </Text>
             <CustomButton
               title="Book Flight"
-              onPress={() =>
-                Linking.openURL(
-                  parsedTripPlan.trip_plan.flight_details.booking_url
-                )
-              }
+              onPress={() => {
+                const flight = parsedTripPlan.trip_plan.flight_details;
+
+                const params = new URLSearchParams({
+                  departure: flight.departure_city,
+                  arrival: flight.arrival_city,
+                  departure_date: flight.departure_date,
+                  airline: flight.airline,
+                  flight_number: flight.flight_number,
+                  price: flight.price,
+                });
+
+                const url = `${flight.booking_url}?${params.toString()}`;
+                Linking.openURL(url);
+              }}
               className="mt-4"
             />
           </View>

@@ -8,11 +8,13 @@ const UserTripCard = ({ trip }: { trip: any }) => {
   const router = useRouter();
 
   const tripData = JSON.parse(trip?.tripData);
+
   const locationInfo = tripData?.find(
     (item: any) => item.locationInfo
   )?.locationInfo;
   const startDate = tripData?.find((item: any) => item.dates)?.dates?.startDate;
   const endDate = tripData?.find((item: any) => item.dates)?.dates?.endDate;
+  const travelers = tripData?.find((item: any) => item.travelers)?.travelers;
 
   const isPastTrip = moment().isAfter(moment(endDate));
 
@@ -41,7 +43,7 @@ const UserTripCard = ({ trip }: { trip: any }) => {
           {moment(startDate).format("DD MMM yyyy")}
         </Text>
         <Text className="font-outfit-medium text-md text-gray-500 mt-1">
-          {trip?.tripPlan?.trip_plan?.group_size.split(" ")[0]}
+          {travelers ? `${travelers.type} (${travelers.count})` : "Unknown"}
         </Text>
       </View>
       <View className="flex-1">

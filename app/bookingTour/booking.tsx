@@ -8,11 +8,11 @@ import {
   TextInput,
   ScrollView,
   Linking,
-} from "react-native";  
+} from "react-native";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
 import { Picker } from "@react-native-picker/picker";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 const POINT_PER_GUEST = 960;
 
@@ -28,6 +28,7 @@ const BookingScreen = () => {
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTourDetails = async () => {
@@ -108,12 +109,8 @@ const BookingScreen = () => {
 
       if (response.data.payUrl) {
         // Nếu là Momo, mở URL thanh toán
-        Alert.alert(
-          "Chuyển đến Momo",
-          "Đang chuyển hướng đến cổng thanh toán..."
-          );
-          Linking.openURL(response.data.payUrl);
-        // hoặc bạn có thể sử dụng Linking.openURL(response.data.payUrl);
+        Linking.openURL(response.data.payUrl);
+        router.push("/mytrip");
       } else {
         Alert.alert("Thành công", "Bạn đã đặt tour thành công!");
       }

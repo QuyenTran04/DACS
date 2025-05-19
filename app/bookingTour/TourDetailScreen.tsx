@@ -17,6 +17,7 @@ const TourDetailScreen = () => {
   const [tour, setTour] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [bookingLoading, setBookingLoading] = useState(false);
   const router = useRouter();
 
   // Fetch thông tin tour
@@ -61,11 +62,15 @@ const TourDetailScreen = () => {
     if (!selectedDate) {
       alert("Vui lòng chọn ngày trước khi đặt tour.");
     } else {
-      const query = new URLSearchParams({
-        tourId: tourId as string,
-        selectedDate: selectedDate,
-      }).toString();
-      router.push(`/bookingTour/booking?${query}`);
+      setBookingLoading(true);
+      setTimeout(() => {
+        const query = new URLSearchParams({
+          tourId: tourId as string,
+          selectedDate: selectedDate,
+        }).toString();
+        router.push(`/bookingTour/booking?${query}`);
+        setBookingLoading(false);
+      }, 500); // Giả lập delay loading 0.5s
     }
   };
 
@@ -149,10 +154,15 @@ const TourDetailScreen = () => {
       </View>
 
       <TouchableOpacity
-        style={styles.bookButton}
-        onPress={handleBooking} // Gọi handleBooking khi nhấn nút
+        style={[styles.bookButton, bookingLoading && { opacity: 0.7 }]}
+        onPress={handleBooking}
+        disabled={bookingLoading}
       >
-        <Text style={styles.bookButtonText}>Đặt tour ngay</Text>
+        {bookingLoading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.bookButtonText}>Đặt tour ngay</Text>
+        )}
       </TouchableOpacity>
     </ScrollView>
   );
