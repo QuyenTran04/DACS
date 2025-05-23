@@ -46,10 +46,10 @@ exports.createBooking = async (req, res) => {
       selectedDate,
       note,
       totalPrice,
-      status: paymentMethod === "cod" ? "confirmed" : "pending",
+      status: paymentMethod === "cod" ? "Thành công" : "Không thành công",
       payment: {
         method: paymentMethod,
-        status: "unpaid",
+        status: "Chưa thanh toán",
       },
       contactInfo: {
         fullName,

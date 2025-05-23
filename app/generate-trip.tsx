@@ -97,3 +97,4 @@ const GenerateTrip = () => {
 };
 
 export default GenerateTrip;
+ 

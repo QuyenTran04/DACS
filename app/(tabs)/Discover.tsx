@@ -182,8 +182,8 @@ const Discover: React.FC = () => {
   }
 
   const airports = [
-    "HAN (Hà Nội)",
     "SGN (TP.HCM)",
+    "HAN (Hà Nội)",
     "DAD (Đà Nẵng)",
   ];
 

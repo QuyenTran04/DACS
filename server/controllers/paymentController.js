@@ -44,8 +44,8 @@ exports.handleMomoIPN = async (req, res) => {
         return res.status(404).json({ message: "Không tìm thấy booking" });
       }
 
-      booking.payment.status = "paid";
-      booking.status = "confirmed";
+      booking.payment.status = "Thành công";
+      booking.status = "Thành công"; // Cập nhật trạng thái booking
       await booking.save();
         return res.status(200).json({ message: "Cập nhật trạng thái thành công" });
 
