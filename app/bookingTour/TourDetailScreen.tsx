@@ -25,7 +25,7 @@ const TourDetailScreen = () => {
     const fetchTourDetail = async () => {
       try {
         const res = await axios.get(
-          `http://192.168.1.8:5000/api/tour/getTour/${tourId}`
+          `http://192.168.3.21:5000/api/tour/getTour/${tourId}`
         );
         setTour(res.data.tour);
       } catch (err) {

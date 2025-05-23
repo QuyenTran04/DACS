@@ -12,10 +12,26 @@ import { useRouter } from "expo-router";
 import { CreateTripContext } from "@/context/CreateTripContext";
 
 const locations = [
-  { name: 'Hà Nội', coordinate: { lat: 21.0285, lng: 105.8542 } },
-  { name: 'Đà Nẵng', coordinate: { lat: 16.0544, lng: 108.2022 } },
-  { name: 'TP.HCM', coordinate: { lat: 10.7769, lng: 106.7009 } },
-  { name: 'Nha Trang', coordinate: { lat: 12.2388, lng: 109.1967 } },
+  {
+    name: "Hà Nội",
+    coordinate: { lat: 21.0285, lng: 105.8542 },
+    photoRef: "/assets/images/hanoi.jpg",
+  },
+  {
+    name: "Đà Nẵng",
+    coordinate: { lat: 16.0544, lng: 108.2022 },
+    photoRef: "/assets/images/hanoi.jpg",
+  },
+  {
+    name: "TP.HCM",
+    coordinate: { lat: 10.7769, lng: 106.7009 },
+    photoRef: "/assets/images/hanoi.jpg",
+  },
+  {
+    name: "Nha Trang",
+    coordinate: { lat: 12.2388, lng: 109.1967 },
+    photoRef: "/assets/images/hanoi.jpg",
+  },
 ];
 
 const SearchPlace = () => {
@@ -23,7 +39,11 @@ const SearchPlace = () => {
   const { setTripData } = useContext(CreateTripContext);
 
   // Hàm xử lý khi chọn địa điểm
-  const handleSelectPlace = (location: { name: any; coordinate: any; }) => {
+  const handleSelectPlace = (location: {
+    name: any;
+    coordinate: any;
+    photoRef: any;
+  }) => {
     setTripData((prev) => {
       const newData = prev.filter((item) => !item.locationInfo);
       return [
@@ -32,6 +52,7 @@ const SearchPlace = () => {
           locationInfo: {
             name: location.name,
             coordinates: location.coordinate,
+            photoRef: location.photoRef,
           },
         },
       ];

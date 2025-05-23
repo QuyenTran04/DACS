@@ -52,11 +52,11 @@ const UserTripList = ({ userTrips }: { userTrips: any[] }) => {
               isPastTrip ? "text-gray-500" : ""
             }`}
           >
-            {sortedTrips[0]?.tripPlan?.trip_plan?.location}
+            {locationInfo?.name || "Unknown destination"}
           </Text>
           <View className="flex flex-row justify-between items-center mt-2">
             <Text className="font-outfit text-lg text-gray-500">
-              {moment(startDate).format("DD MMM yyyy")}
+              {moment(startDate).format("DD MMM")} → {moment(endDate).format("DD MMM YYYY")}
             </Text>
             <Text className="font-outfit-medium mr-5 text-lg text-gray-500">
               🚌 {travelersType}

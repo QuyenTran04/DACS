@@ -18,18 +18,27 @@ const UserTripCard = ({ trip }: { trip: any }) => {
 
   const isPastTrip = moment().isAfter(moment(endDate));
 
+  const hasImage = !!locationInfo?.photoRef;
+
   return (
     <View className="mt-5 flex flex-row gap-3">
       <View className="w-32 h-32">
-        <Image
-          source={{
-            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${locationInfo?.photoRef}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_KEY}`,
-          }}
-          className={`w-full h-full rounded-2xl ${
-            isPastTrip ? "grayscale" : ""
-          }`}
-        />
+        {hasImage ? (
+          <Image
+            source={{
+              uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${locationInfo.photoRef}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_KEY}`,
+            }}
+            className={`w-full h-full rounded-2xl ${
+              isPastTrip ? "grayscale" : ""
+            }`}
+          />
+        ) : (
+          <View className="w-full h-full rounded-2xl bg-purple-100 items-center justify-center">
+            <Text className="text-purple-600 font-outfit-medium">No Image</Text>
+          </View>
+        )}
       </View>
+
       <View className="flex-1">
         <Text
           className={`font-outfit-medium text-lg ${
@@ -37,16 +46,21 @@ const UserTripCard = ({ trip }: { trip: any }) => {
           }`}
           numberOfLines={2}
         >
-          {trip?.tripPlan?.trip_plan?.location}
+          {locationInfo?.name || "Unknown destination"}
         </Text>
+
         <Text className="font-outfit text-md text-gray-500 mt-1">
-          {moment(startDate).format("DD MMM yyyy")}
+          {startDate && endDate
+            ? `${moment(startDate).format("DD MMM")} → ${moment(endDate).format(
+                "DD MMM YYYY"
+              )}`
+            : "Unknown dates"}
         </Text>
+
         <Text className="font-outfit-medium text-md text-gray-500 mt-1">
-          {travelers ? `${travelers.type} (${travelers.count})` : "Unknown"}
+          👥 {travelers?.count || "?"} người ({travelers?.type || "?"})
         </Text>
-      </View>
-      <View className="flex-1">
+
         <CustomButton
           title="View Trip"
           onPress={() =>
