@@ -20,7 +20,7 @@ const TourDetailScreen = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const router = useRouter();
 
-  // Fetch thông tin tour
+  // Lấy thông tin tour
   useEffect(() => {
     const fetchTourDetail = async () => {
       try {
@@ -96,7 +96,7 @@ const TourDetailScreen = () => {
         </Text>
       </View>
 
-      <Text style={styles.label}>Địa chỉ: </Text>
+      <Text style={styles.label}>Địa chỉ:</Text>
       <Text style={styles.text}>{tour.address}</Text>
 
       <Text style={styles.label}>Giá:</Text>
@@ -200,6 +200,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#ddd",
     backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   image: {
     width: "100%",
@@ -249,6 +253,10 @@ const styles = StyleSheet.create({
   itineraryItem: {
     flexDirection: "row",
     marginBottom: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: "#f0f0f0",
   },
   itineraryTime: {
     fontWeight: "600",
@@ -268,6 +276,10 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   bookButtonText: {
     color: "#fff",

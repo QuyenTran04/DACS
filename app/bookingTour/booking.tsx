@@ -1,3 +1,4 @@
+// BookingScreen.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -24,7 +25,6 @@ const BookingScreen = () => {
   const [loading, setLoading] = useState(false);
   const [tourPrice, setTourPrice] = useState(0);
   const [tourDetailsLoading, setTourDetailsLoading] = useState(true);
-
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -43,7 +43,6 @@ const BookingScreen = () => {
           throw new Error("Giá tour không hợp lệ");
         }
       } catch (error) {
-        console.error("Lỗi khi lấy thông tin tour:", error);
         Alert.alert(
           "Lỗi",
           "Không thể lấy thông tin tour hoặc giá không hợp lệ."
@@ -53,7 +52,6 @@ const BookingScreen = () => {
         setTourDetailsLoading(false);
       }
     };
-
     fetchTourDetails();
   }, [tourId]);
 
@@ -62,17 +60,12 @@ const BookingScreen = () => {
       Alert.alert("Thiếu thông tin", "Vui lòng chọn tour và ngày hợp lệ.");
       return;
     }
-
     if (numberOfGuests <= 0) {
       Alert.alert("Lỗi", "Số lượng khách phải lớn hơn 0.");
       return;
     }
-
     if (!fullName || !phoneNumber || !contactEmail) {
-      Alert.alert(
-        "Thiếu thông tin",
-        "Vui lòng nhập đầy đủ họ tên, số điện thoại và email."
-      );
+      Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ thông tin.");
       return;
     }
 
@@ -80,14 +73,12 @@ const BookingScreen = () => {
       setLoading(true);
       const auth = getAuth();
       const user = auth.currentUser;
-
       if (!user) {
         Alert.alert("Lỗi", "Vui lòng đăng nhập trước khi đặt tour.");
         return;
       }
 
       const idToken = await user.getIdToken();
-
       const response = await axios.post(
         "http://192.168.3.21:5000/api/booking",
         {
@@ -108,116 +99,92 @@ const BookingScreen = () => {
       );
 
       if (response.data.payUrl) {
-        // Nếu là Momo, mở URL thanh toán
         Linking.openURL(response.data.payUrl);
         router.push("/mytrip");
       } else {
         Alert.alert("Thành công", "Bạn đã đặt tour thành công!");
       }
     } catch (err) {
-      console.error("Lỗi đặt tour:", err);
-      Alert.alert(
-        "Lỗi",
-        `Không thể đặt tour. Lỗi: ${
-          err.response?.data?.message || "Vui lòng thử lại."
-        }`
-      );
+      Alert.alert("Lỗi", err.response?.data?.message || "Đặt tour thất bại.");
     } finally {
       setLoading(false);
     }
   };
-
-  const increaseGuests = () => setNumberOfGuests(numberOfGuests + 1);
-  const decreaseGuests = () =>
-    setNumberOfGuests(Math.max(1, numberOfGuests - 1));
 
   const totalPrice = isNaN(tourPrice) ? 0 : tourPrice * numberOfGuests;
   const totalPoints = POINT_PER_GUEST * numberOfGuests;
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <Text style={styles.title}>Vé tham quan</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.title}>🛫 Đặt vé tham quan</Text>
 
-        <Text style={styles.label}>Ngày sử dụng:</Text>
-        <Text style={styles.value}>{selectedDate}</Text>
+        <Label label="Ngày sử dụng" value={selectedDate} />
 
-        <Text style={styles.label}>Số lượng khách:</Text>
+        <Text style={styles.label}>Số lượng khách</Text>
         <View style={styles.counterRow}>
-          <TouchableOpacity style={styles.counterBtn} onPress={decreaseGuests}>
+          <TouchableOpacity
+            style={styles.counterBtn}
+            onPress={() => setNumberOfGuests(Math.max(1, numberOfGuests - 1))}
+          >
             <Text style={styles.counterText}>−</Text>
           </TouchableOpacity>
           <Text style={styles.quantity}>{numberOfGuests}</Text>
-          <TouchableOpacity style={styles.counterBtn} onPress={increaseGuests}>
+          <TouchableOpacity
+            style={styles.counterBtn}
+            onPress={() => setNumberOfGuests(numberOfGuests + 1)}
+          >
             <Text style={styles.counterText}>+</Text>
           </TouchableOpacity>
         </View>
 
         {tourDetailsLoading ? (
-          <Text style={styles.value}>Đang tải thông tin tour...</Text>
+          <Text style={styles.value}>Đang tải giá...</Text>
         ) : (
-          <View style={styles.priceRow}>
+          <View style={styles.priceBox}>
             <Text style={styles.priceText}>
               {totalPrice.toLocaleString()} VND
             </Text>
-            <Text style={styles.pointsText}>🎁 Nhận {totalPoints} Xu</Text>
+            <Text style={styles.pointsText}>🎁 {totalPoints} điểm thưởng</Text>
           </View>
         )}
 
-        <Text style={styles.label}>Họ tên người đặt:</Text>
-        <TextInput
-          style={styles.input}
+        <Input
+          label="Họ tên người đặt"
           value={fullName}
-          onChangeText={setFullName}
-          placeholder="Nhập họ tên"
+          onChange={setFullName}
         />
-
-        <Text style={styles.label}>Số điện thoại:</Text>
-        <TextInput
-          style={styles.input}
+        <Input
+          label="Số điện thoại"
           value={phoneNumber}
-          onChangeText={setPhoneNumber}
-          placeholder="Nhập số điện thoại"
+          onChange={setPhoneNumber}
           keyboardType="phone-pad"
         />
-
-        <Text style={styles.label}>Email liên hệ:</Text>
-        <TextInput
-          style={styles.input}
+        <Input
+          label="Email liên hệ"
           value={contactEmail}
-          onChangeText={setContactEmail}
-          placeholder="Nhập email"
+          onChange={setContactEmail}
           keyboardType="email-address"
         />
+        <Input label="Ghi chú" value={note} onChange={setNote} multiline />
 
-        <Text style={styles.label}>Ghi chú:</Text>
-        <TextInput
-          style={[styles.input, { height: 80 }]}
-          multiline
-          value={note}
-          onChangeText={setNote}
-          placeholder="Ví dụ: muốn đón ở khách sạn..."
-        />
-
-        <Text style={styles.label}>Phương thức thanh toán:</Text>
+        <Text style={styles.label}>Phương thức thanh toán</Text>
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={paymentMethod}
             onValueChange={setPaymentMethod}
           >
-            <Picker.Item label="Tiền mặt" value="cash" />
-            <Picker.Item label="Momo" value="momo" />
+            <Picker.Item label="💵 Tiền mặt" value="cash" />
+            <Picker.Item label="📱 Ví Momo" value="momo" />
           </Picker>
         </View>
 
-        <Text style={styles.notice}>
-          🔒 Không thể hoàn tiền • Không thể đổi lịch
-        </Text>
+        <Text style={styles.notice}>🔒 Không hoàn tiền • Không đổi lịch</Text>
       </ScrollView>
 
       <View style={styles.bottomBar}>
         <View>
-          <Text style={styles.totalLabel}>Tổng giá</Text>
+          <Text style={styles.totalLabel}>Tổng cộng</Text>
           <Text style={styles.totalPrice}>
             {totalPrice.toLocaleString()} VND
           </Text>
@@ -238,76 +205,96 @@ const BookingScreen = () => {
 
 export default BookingScreen;
 
+// ⬇️ Các thành phần phụ
+const Label = ({ label, value }: { label: string; value: string }) => (
+  <>
+    <Text style={styles.label}>{label}</Text>
+    <Text style={styles.value}>{value}</Text>
+  </>
+);
+
+const Input = ({
+  label,
+  value,
+  onChange,
+  multiline = false,
+  keyboardType = "default",
+}) => (
+  <>
+    <Text style={styles.label}>{label}</Text>
+    <TextInput
+      style={[
+        styles.input,
+        multiline && { height: 80, textAlignVertical: "top" },
+      ]}
+      value={value}
+      onChangeText={onChange}
+      placeholder={`Nhập ${label.toLowerCase()}`}
+      keyboardType={keyboardType}
+      multiline={multiline}
+    />
+  </>
+);
+
+// ⬇️ Style hiện đại hơn
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fefefe",
-  },
+  container: { flex: 1, backgroundColor: "#f9fafb" },
+  scrollContent: { padding: 20, paddingBottom: 140 },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
-    marginTop: 20,
-    marginHorizontal: 20,
-    color: "#333",
+    color: "#1f2937",
+    marginBottom: 20,
   },
-  label: {
-    marginTop: 20,
-    marginHorizontal: 20,
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#555",
-  },
-  value: {
-    marginTop: 8,
-    marginHorizontal: 20,
-    fontSize: 16,
-    color: "#000",
-  },
+  label: { marginTop: 20, fontSize: 16, fontWeight: "600", color: "#374151" },
+  value: { marginTop: 8, fontSize: 16, color: "#111827" },
   input: {
     marginTop: 10,
-    marginHorizontal: 20,
     backgroundColor: "#fff",
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 12,
+    borderColor: "#e5e7eb",
+    padding: 14,
   },
   pickerContainer: {
     marginTop: 10,
-    marginHorizontal: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#e5e7eb",
+    backgroundColor: "#fff",
   },
   counterRow: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
     marginTop: 10,
   },
   counterBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ccc",
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: "#f3f4f6",
     justifyContent: "center",
     alignItems: "center",
   },
   counterText: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#555",
+    color: "#374151",
   },
   quantity: {
-    marginHorizontal: 20,
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#111827",
   },
-  priceRow: {
+  priceBox: {
     marginTop: 20,
-    marginHorizontal: 20,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    borderColor: "#e5e7eb",
+    borderWidth: 1,
   },
   priceText: {
     fontSize: 18,
@@ -316,14 +303,13 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     marginTop: 4,
-    color: "#999",
     fontSize: 14,
+    color: "#6b7280",
   },
   notice: {
     marginTop: 30,
-    marginHorizontal: 20,
     fontSize: 14,
-    color: "#888",
+    color: "#9ca3af",
     textAlign: "center",
   },
   bottomBar: {
@@ -331,28 +317,28 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
     padding: 16,
     borderTopWidth: 1,
-    borderColor: "#eee",
+    borderColor: "#e5e7eb",
+    backgroundColor: "#fff",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   totalLabel: {
-    color: "#999",
     fontSize: 14,
+    color: "#6b7280",
   },
   totalPrice: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#f97316",
   },
   bookButton: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "#3b82f6",
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    paddingHorizontal: 24,
+    borderRadius: 10,
   },
   bookButtonText: {
     color: "#fff",

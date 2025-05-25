@@ -75,7 +75,7 @@ exports.createBooking = async (req, res) => {
         .createHmac("sha256", momoConfig.secretKey)
         .update(rawSignature)
         .digest("hex");
-
+      
       const momoRequest = {
         partnerCode: momoConfig.partnerCode,
         accessKey: momoConfig.accessKey,

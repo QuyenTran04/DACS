@@ -6,11 +6,12 @@ import {
   StyleSheet,
   SafeAreaView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 
-// ✅ Type cho mỗi booking
 type Booking = {
   _id: string;
   selectedDate: string;
@@ -32,7 +33,7 @@ type Booking = {
 
 const BookingHistoryScreen = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -40,20 +41,18 @@ const BookingHistoryScreen = () => {
         const auth = getAuth();
         const user = auth.currentUser;
         if (!user) throw new Error("Người dùng chưa đăng nhập");
-
-        const idToken = await user.getIdToken();
+        const token = await user.getIdToken();
 
         const res = await axios.get(
           "http://192.168.3.21:5000/api/booking/History",
           {
-            headers: {
-              Authorization: `Bearer ${idToken}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
+
         setBookings(res.data.bookings);
       } catch (err) {
-        console.error("Lỗi khi lấy lịch sử booking", err);
+        console.error("Lỗi lấy lịch sử booking:", err);
       } finally {
         setLoading(false);
       }
@@ -62,42 +61,82 @@ const BookingHistoryScreen = () => {
     fetchBookings();
   }, []);
 
-  // ✅ Mapping trạng thái tiếng Việt sang styles
-  const getStatusStyle = (status: Booking["status"]) => {
+  const getStatusColor = (status: Booking["status"]) => {
     switch (status) {
       case "Thành công":
-        return styles.confirmed;
+        return "#28a745";
       case "Đã hủy":
-        return styles.cancelled;
-      case "Không thành công":
+        return "#dc3545";
       default:
-        return styles.pending;
+        return "#f0ad4e";
     }
   };
 
   const renderItem = ({ item }: { item: Booking }) => (
-    <View style={styles.bookingCard}>
-      <Text style={styles.tourTitle}>{item.tourId.title}</Text>
-      <Text>
-        Ngày khởi hành: {new Date(item.selectedDate).toLocaleDateString()}
-      </Text>
-      <Text>Ngày đặt: {new Date(item.bookingDate).toLocaleDateString()}</Text>
-      <Text>Số khách: {item.numberOfGuests}</Text>
-      <Text>Tổng tiền: {item.totalPrice.toLocaleString()} VND</Text>
-      <Text>
-        Thanh toán: {item.payment.status.toUpperCase()} ({item.payment.method})
-      </Text>
-      <Text style={[styles.status, getStatusStyle(item.status)]}>
-        Trạng thái: {item.status}
-      </Text>
+    <View style={styles.card}>
+      <View style={styles.cardContent}>
+        <Text style={styles.tourTitle}>{item.tourId.title}</Text>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="calendar-outline" size={16} color="#555" />
+          <Text style={styles.infoText}>
+            Ngày khởi hành: {new Date(item.selectedDate).toLocaleDateString()}
+          </Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <FontAwesome5 name="clock" size={14} color="#555" />
+          <Text style={styles.infoText}>
+            Đặt ngày: {new Date(item.bookingDate).toLocaleDateString()}
+          </Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="people-outline" size={16} color="#555" />
+          <Text style={styles.infoText}>Số khách: {item.numberOfGuests}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="cash-outline" size={16} color="#555" />
+          <Text style={styles.infoText}>
+            Tổng tiền: {item.totalPrice.toLocaleString()} VND
+          </Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="card-outline" size={16} color="#555" />
+          <Text style={styles.infoText}>
+            Thanh toán: {item.payment.status} ({item.payment.method})
+          </Text>
+        </View>
+
+        <View style={styles.statusWrapper}>
+          <Ionicons
+            name={
+              item.status === "Thành công"
+                ? "checkmark-circle-outline"
+                : item.status === "Đã hủy"
+                ? "close-circle-outline"
+                : "alert-circle-outline"
+            }
+            size={18}
+            color={getStatusColor(item.status)}
+          />
+          <Text
+            style={[styles.statusText, { color: getStatusColor(item.status) }]}
+          >
+            Trạng thái: {item.status}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 
   if (loading) {
     return (
       <SafeAreaView style={styles.centered}>
-        <ActivityIndicator size="large" color="#007bff" />
-        <Text>Đang tải lịch sử đặt tour...</Text>
+        <ActivityIndicator size="large" color="#8b5cf6" />
+        <Text style={{ marginTop: 10 }}>Đang tải lịch sử đặt tour...</Text>
       </SafeAreaView>
     );
   }
@@ -117,7 +156,8 @@ const BookingHistoryScreen = () => {
         data={bookings}
         keyExtractor={(item) => item._id}
         renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   );
@@ -128,45 +168,60 @@ export default BookingHistoryScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#f3f4f6",
   },
   header: {
-    fontSize: 22,
-    fontWeight: "bold",
-    margin: 16,
-  },
-  listContent: {
+    fontSize: 24,
+    fontWeight: "700",
     paddingHorizontal: 16,
-    paddingBottom: 32,
+    paddingTop: 16,
+    paddingBottom: 8,
+    color: "#1f2937",
   },
-  bookingCard: {
+  card: {
     backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 2,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  tourImage: {
+    width: "100%",
+    height: 180,
+    resizeMode: "cover",
+  },
+  cardContent: {
+    padding: 16,
   },
   tourTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: 10,
+    color: "#374151",
   },
-  status: {
-    marginTop: 4,
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+    gap: 8,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#555",
+  },
+  statusWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    gap: 6,
+  },
+  statusText: {
     fontWeight: "600",
-  },
-  pending: {
-    color: "#FFA500",
-  },
-  confirmed: {
-    color: "#28A745",
-  },
-  cancelled: {
-    color: "#DC3545",
+    fontSize: 14,
   },
   centered: {
     flex: 1,
