@@ -1,8 +1,4 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import React from "react";
 import { Stack, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -26,10 +22,7 @@ export default function BookingTourLayout() {
         ),
       }}
     >
-
-      <Stack.Screen name="TourDetailScreen" />
-      <Stack.Screen name="booking" />
-      <Stack.Screen name="success" />
+      <Stack.Screen name="momo-redirect" />
     </Stack>
   );
 }

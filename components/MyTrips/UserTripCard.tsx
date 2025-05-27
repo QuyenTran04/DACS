@@ -68,7 +68,7 @@ const UserTripCard = ({ trip }: { trip: any }) => {
               pathname: "/trip-details",
               params: {
                 tripData: trip.tripData,
-                tripPlan: JSON.stringify(trip.tripPlan),
+                tripPlan: JSON.stringify(trip.tripPlan ,null,2),
               },
             })
           }

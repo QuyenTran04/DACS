@@ -179,7 +179,6 @@ const BookingScreen = () => {
           </Picker>
         </View>
 
-        <Text style={styles.notice}>🔒 Không hoàn tiền • Không đổi lịch</Text>
       </ScrollView>
 
       <View style={styles.bottomBar}>

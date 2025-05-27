@@ -19,9 +19,9 @@ interface Coordinates {
   longitude: number;
 }
 
-interface Attraction {
-  attractionName: string;
-  details: string;
+interface attractions {
+  name: string;
+  description: string;
   imageUrl: string;
   coordinates: Coordinates;
   price: number | string;
@@ -36,7 +36,7 @@ interface Hotel {
   coordinates: Coordinates;
   rating: number | string;
   description: string;
-  nearbyAttractions: Attraction[];
+  nearbyAttractions: attractions[];
 }
 
 interface Flight {
@@ -109,11 +109,10 @@ const Discover: React.FC = () => {
     tripData: string;
   }>();
 
+  
   const [plan, setPlan] = useState<TripPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [departureAirport, setDepartureAirport] = useState<string>("");
-
-  console.log("departureAirport", departureAirport);
   useEffect(() => {
     if (!tripPlan) return;
     try {
@@ -139,25 +138,26 @@ const Discover: React.FC = () => {
           : null;
 
       const safePlan: TripPlan = {
-        destination: locationInfo?.name ?? planData.destination ?? "Unknown",
-        duration: durationInDays ? `${durationInDays} days` : "",
-        travelers: planData.travelers ?? travelers?.count ?? "N/A",
-        budget: planData.budget ?? budget?.type ?? "N/A",
+        destination: locationInfo?.name ?? planData.destination ?? "Không rõ",
+        duration: durationInDays ? `${durationInDays} ngày` : "",
+        travelers: planData.travelers ?? travelers?.count ?? "Không rõ",
+        budget: planData.budget ?? budget?.type ?? "Không rõ",
         flights: planData.flights ?? [],
         hotels: planData.hotels ?? [],
         itinerary: planData.itinerary ?? [],
       };
 
+      
       setPlan(safePlan);
-      console.log("✈️ first flight:", safePlan.flights);
       if (Array.isArray(safePlan.flights) && safePlan.flights.length > 0) {
         const airport = safePlan.flights[0]?.departureAirport;
+        console.log("airport", airport);
         if (airport) {
           setDepartureAirport(airport);
         }
       }
     } catch (error) {
-      console.error("❌ Error parsing tripPlan:", error);
+      console.error("❌ Lỗi phân tích tripPlan:", error);
     } finally {
       setLoading(false);
     }
@@ -181,11 +181,7 @@ const Discover: React.FC = () => {
     );
   }
 
-  const airports = [
-    "SGN (TP.HCM)",
-    "HAN (Hà Nội)",
-    "DAD (Đà Nẵng)",
-  ];
+  const airports = ["SGN (TP.HCM)", "HAN (Hà Nội)", "DAD (Đà Nẵng)"];
 
   return (
     <ScrollView
@@ -193,43 +189,21 @@ const Discover: React.FC = () => {
       contentContainerStyle={{ padding: 16, paddingTop: 80, paddingBottom: 40 }}
     >
       <Text className="text-3xl font-bold mb-6">
-        Trip to {plan.destination}
+        Chuyến đi đến {plan.destination}
       </Text>
 
       <View className="bg-purple-50 p-4 rounded-xl mb-8">
-        <Text className="font-bold text-lg mb-2">Trip Overview</Text>
-        <Text>Duration: {plan.duration || "N/A"}</Text>
-        <Text>Travelers: {plan.travelers || "N/A"}</Text>
-        <Text>Budget: {plan.budget || "N/A"}</Text>
+        <Text className="font-bold text-lg mb-2">Tổng quan chuyến đi</Text>
+        <Text>Thời gian: {plan.duration || "Không rõ"}</Text>
+        <Text>Số người: {plan.travelers || "Không rõ"}</Text>
+        <Text>Ngân sách: {plan.budget || "Không rõ"}</Text>
       </View>
 
       {/* Flights */}
       {Array.isArray(plan.flights) && plan.flights.length > 0 && (
         <View className="mb-8">
-          <Text className="text-2xl font-bold mb-4">Flight Details</Text>
-          <Text className="mb-2">Change Departure Airport:</Text>
-          <View className="border border-gray-300 rounded-lg bg-white mb-4">
-            <Picker
-              selectedValue={departureAirport}
-              onValueChange={(val) => {
-                setDepartureAirport(val);
-                setPlan((prev) =>
-                  prev
-                    ? {
-                        ...prev,
-                        flights: prev.flights!.map((f, i) =>
-                          i === 0 ? { ...f, departureAirport: val } : f
-                        ),
-                      }
-                    : prev
-                );
-              }}
-            >
-              {airports.map((a) => (
-                <Picker.Item label={a} value={a} key={a} />
-              ))}
-            </Picker>
-          </View>
+          <Text className="text-2xl font-bold mb-4">Chi tiết chuyến bay</Text>
+          
 
           {plan.flights.map((f, i) => (
             <View
@@ -238,22 +212,22 @@ const Discover: React.FC = () => {
             >
               <View className="flex-row justify-between items-center mb-4">
                 <View>
-                  <Text className="font-bold">Departure</Text>
-                  <Text>{departureAirport}</Text>
+                  <Text className="font-bold">Khởi hành</Text>
+                  <Text>{f.departureAirport}</Text>
                   <Text>{formatDateTime(f.departureTime)}</Text>
                 </View>
                 <Ionicons name="airplane" size={24} color="#8b5cf6" />
                 <View>
-                  <Text className="font-bold">Arrival</Text>
+                  <Text className="font-bold">Đến nơi</Text>
                   <Text>{f.arrivalAirport}</Text>
                   <Text>{formatDateTime(f.arrivalTime)}</Text>
                 </View>
               </View>
-              <Text>Airline: {f.airline}</Text>
-              <Text>Flight Number: {f.flightNumber}</Text>
-              <Text>Price: {String(f.price)}</Text>
+              <Text>Hãng bay: {f.airline}</Text>
+              <Text>Số hiệu chuyến bay: {f.flightNumber}</Text>
+              <Text>Giá: {String(f.price)}</Text>
               <CustomButton
-                title="Book Flight"
+                title="Đặt vé"
                 onPress={() => Linking.openURL(f.bookingURL)}
                 disabled={!f.bookingURL}
                 className="mt-4"
@@ -266,7 +240,7 @@ const Discover: React.FC = () => {
       {/* Hotels */}
       {Array.isArray(plan.hotels) && plan.hotels.length > 0 && (
         <View className="mb-8">
-          <Text className="text-2xl font-bold mb-4">Hotels</Text>
+          <Text className="text-2xl font-bold mb-4">Khách sạn</Text>
           {plan.hotels.map((hotel, i) => (
             <View
               key={i}
@@ -281,11 +255,11 @@ const Discover: React.FC = () => {
 
               <Text className="font-bold text-lg">{hotel.hotelName}</Text>
               <Text>{hotel.address}</Text>
-              <Text>Price: {String(hotel.price)}</Text>
-              <Text>Rating: {String(hotel.rating)} ⭐</Text>
+              <Text>Giá: {String(hotel.price)}</Text>
+              <Text>Đánh giá: {String(hotel.rating)} ⭐</Text>
               <Text className="mt-2">{hotel.description}</Text>
               <CustomButton
-                title="View on Map"
+                title="Xem trên bản đồ"
                 onPress={() =>
                   openMap(
                     hotel.coordinates.latitude,
@@ -297,7 +271,7 @@ const Discover: React.FC = () => {
               {Array.isArray(hotel.nearbyAttractions) && (
                 <>
                   <Text className="font-bold text-lg mt-6 mb-2">
-                    Nearby Attractions
+                    Điểm tham quan gần đó
                   </Text>
                   {hotel.nearbyAttractions.map((att, j) => (
                     <View
@@ -311,12 +285,10 @@ const Discover: React.FC = () => {
                         />
                       )}
                       <View style={{ flex: 1 }}>
-                        <Text className="font-semibold">
-                          {att.attractionName}
-                        </Text>
-                        <Text>{att.details}</Text>
-                        <Text>Price: {String(att.price)}</Text>
-                        <Text>Travel Time: {att.travelTime}</Text>
+                        <Text className="font-semibold">{att.name}</Text>
+                        <Text>{att.description}</Text>
+                        <Text>Giá: {String(att.price)}</Text>
+                        <Text>Thời gian di chuyển: {att.travelTime}</Text>
                       </View>
                       <TouchableOpacity
                         onPress={() =>
@@ -341,13 +313,13 @@ const Discover: React.FC = () => {
       {/* Itinerary */}
       {Array.isArray(plan.itinerary) && plan.itinerary.length > 0 && (
         <View className="mb-8">
-          <Text className="text-2xl font-bold mb-4">Itinerary</Text>
+          <Text className="text-2xl font-bold mb-4">Lịch trình</Text>
           {plan.itinerary.map((day, i) => (
             <View
               key={i}
               className="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-100"
             >
-              <Text className="font-bold text-lg mb-2">Day {day.day}</Text>
+              <Text className="font-bold text-lg mb-2">Ngày {day.day}</Text>
               {day.activities.map((act, k) => (
                 <View key={k} className="mb-3">
                   <Text className="font-semibold">{act.time}</Text>

@@ -37,19 +37,74 @@ const GenerateTrip = () => {
     const totalNights = totalDays > 0 ? totalDays - 1 : 0;
 
     const FINAL_PROMPT = `
-  Tôi muốn tạo một chuyến đi đến ${locationInfo.name} từ ngày ${moment(
+Tôi muốn tạo một chuyến đi đến ${locationInfo.name} từ ngày ${moment(
       dates.startDate
-    ).format("DD/MM/YYYY")} 
-  đến ngày ${moment(dates.endDate).format("DD/MM/YYYY")} cho ${
-      travelers.count
-    } người (${travelers.type}) với ngân sách ${budget.type}.
-  Vui lòng trả về kết quả dưới dạng JSON chuẩn gồm:
-  - Thông tin chuyến bay (hãng, mã,điểm đi(mặc định ở tp.HCM)/đến, giờ đi/đến),
-  - Giá vé máy bay kèm URL đặt vé,
-  - Danh sách khách sạn gồm Tên, Địa chỉ, Giá, Ảnh, Tọa độ, Đánh giá, Mô tả,
-  - Các địa điểm tham quan gần đó với Tên, Mô tả, Ảnh, Tọa độ, Giá vé, Thời gian di chuyển.
-  Chỉ trả về JSON hợp lệ, không có chú thích hay văn bản khác ngoài JSON.
-  `;
+    ).format("DD/MM/YYYY")} đến ngày ${moment(dates.endDate).format(
+      "DD/MM/YYYY"
+    )} cho ${travelers.count} người (${travelers.type}) với ngân sách ${
+      budget.type
+    }.
+
+Hãy trả kết quả dưới dạng **JSON hợp lệ**, đúng cấu trúc bên dưới, tất cả dữ liệu phải là thông tin thực tế (không là placeholder hay dữ liệu giả), và toàn bộ văn bản phải bằng **tiếng Việt**:
+
+{
+  "trip": {
+    "traveler": "<kiểu khách du lịch - ví dụ: Một Mình, Cặp đôi, Gia đình>",
+    "budget": "<mức ngân sách - ví dụ: Rẻ, Vừa, Cao cấp>",
+    "startDate": "DD/MM/YYYY",
+    "endDate": "DD/MM/YYYY",
+    "flights": [
+      {
+        "airline": "Tên hãng bay",
+        "flightNumber": "Mã chuyến bay",
+        "departureAirport": "Tp.HCM",
+        "arrivalAirport": "Tên điểm đến",
+        "departureTime": "HH:mm",
+        "arrivalTime": "HH:mm",
+        "price": "Giá vé máy bay (VND, dạng số không có dấu chấm)",
+        "bookingURL": "Đường link đặt vé"
+      }
+    ],
+    "hotels": [
+      {
+        "name": "Tên khách sạn",
+        "address": "Địa chỉ chính xác",
+        "price": "Giá phòng mỗi đêm (VND, dạng số)",
+        "image": "URL ảnh khách sạn",
+        "coordinates": {
+          "latitude": "Vĩ độ",
+          "longitude": "Kinh độ"
+        },
+        "rating": "Điểm đánh giá (VD: 4.5)",
+        "description": "Mô tả ngắn gọn"
+      }
+    ],
+    "attractions": [
+      {
+        "name": "Tên địa điểm",
+        "description": "Mô tả địa điểm",
+        "image": "URL ảnh địa điểm",
+        "coordinates": {
+          "latitude": "Vĩ độ",
+          "longitude": "Kinh độ"
+        },
+        "price": "Giá vé (0 nếu miễn phí)",
+        "travelTime": "Thời gian di chuyển từ khách sạn (VD: 15 phút)"
+      }
+    ]
+  }
+}
+
+**Lưu ý quan trọng:**
+- Trả về đúng JSON như trên, không kèm theo bất kỳ chú thích, lời giới thiệu hoặc nội dung văn bản ngoài JSON.
+- Không sử dụng placeholder như “TBD”, “đang cập nhật”, v.v.
+- Tất cả URL ảnh và bookingURL phải là chuỗi URL hợp lệ và chính xác có trên internet.
+- Tất cả địa chỉ, tên địa điểm, khách sạn, hãng bay phải là thông tin thực tế và chính xác có trên google map.
+- Tất cả giá tiền để dạng số không có dấu chấm phân cách (VD: 1500000).
+- Không được bỏ trống trường "flights", luôn trả về ít nhất 1 chuyến bay phù hợp.
+Không tạo URL ảnh giả, trả về URL ảnh đại diện chuẩn (ví dụ dùng https://source.unsplash.com/featured/?{tên địa danh})
+`;
+
 
     setLoading(true);
 

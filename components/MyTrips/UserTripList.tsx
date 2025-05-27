@@ -56,7 +56,8 @@ const UserTripList = ({ userTrips }: { userTrips: any[] }) => {
           </Text>
           <View className="flex flex-row justify-between items-center mt-2">
             <Text className="font-outfit text-lg text-gray-500">
-              {moment(startDate).format("DD MMM")} → {moment(endDate).format("DD MMM YYYY")}
+              {moment(startDate).format("DD MMM")} →{" "}
+              {moment(endDate).format("DD MMM YYYY")}
             </Text>
             <Text className="font-outfit-medium mr-5 text-lg text-gray-500">
               🚌 {travelersType}
@@ -70,7 +71,7 @@ const UserTripList = ({ userTrips }: { userTrips: any[] }) => {
                 pathname: "/trip-details",
                 params: {
                   tripData: sortedTrips[0].tripData,
-                  tripPlan: JSON.stringify(sortedTrips[0].tripPlan),
+                  tripPlan: JSON.stringify(sortedTrips[0].tripPlan, null, 2),
                 },
               })
             }
