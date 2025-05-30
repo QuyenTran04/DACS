@@ -181,7 +181,6 @@ const Discover: React.FC = () => {
     );
   }
 
-  const airports = ["SGN (TP.HCM)", "HAN (Hà Nội)", "DAD (Đà Nẵng)"];
 
   return (
     <ScrollView

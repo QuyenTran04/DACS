@@ -1,14 +1,12 @@
 import { View, Text, Image } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
 import CustomButton from "../CustomButton";
 import { useRouter } from "expo-router";
 
 const UserTripCard = ({ trip }: { trip: any }) => {
   const router = useRouter();
-
   const tripData = JSON.parse(trip?.tripData);
-
   const locationInfo = tripData?.find(
     (item: any) => item.locationInfo
   )?.locationInfo;
@@ -19,22 +17,55 @@ const UserTripCard = ({ trip }: { trip: any }) => {
   const isPastTrip = moment().isAfter(moment(endDate));
 
   const hasImage = !!locationInfo?.photoRef;
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  const locationName =
+    typeof locationInfo === "object" && locationInfo !== null
+      ? locationInfo.name || "Unknown Location"
+      : typeof locationInfo === "string"
+      ? locationInfo
+      : "Unknown Location";
+
+  const fetchUnsplashImage = async (query: string) => {
+    try {
+      const response = await fetch(
+        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+          query + " travel landscape"
+        )}&client_id=${process.env.EXPO_PUBLIC_UNSPLASH_ACCESS_KEY}`
+      );
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        const url = data.results[0].urls.small;
+        await Image.prefetch(url); // preload
+        return url;
+      }
+    } catch (error) {
+      console.error("Error fetching Unsplash image:", error);
+    }
+    return "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"; // fallback ảnh đẹp
+  };
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      if (locationName) {
+        const url = await fetchUnsplashImage(locationName);
+        setImageUrl(url);
+      }
+    };
+    fetchImage();
+  }, [locationName]);
 
   return (
     <View className="mt-5 flex flex-row gap-3">
-      <View className="w-32 h-32">
-        {hasImage ? (
+      <View className="w-32 h-32 rounded-2xl overflow-hidden">
+        {imageUrl ? (
           <Image
-            source={{
-              uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${locationInfo.photoRef}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_KEY}`,
-            }}
-            className={`w-full h-full rounded-2xl ${
-              isPastTrip ? "grayscale" : ""
-            }`}
+            source={{ uri: imageUrl }}
+            className={`w-full h-full ${isPastTrip ? "grayscale" : ""}`}
           />
         ) : (
-          <View className="w-full h-full rounded-2xl bg-purple-100 items-center justify-center">
-            <Text className="text-purple-600 font-outfit-medium">No Image</Text>
+          <View className="w-full h-full bg-gray-200 items-center justify-center">
+            <Text>Loading...</Text>
           </View>
         )}
       </View>
@@ -68,7 +99,7 @@ const UserTripCard = ({ trip }: { trip: any }) => {
               pathname: "/trip-details",
               params: {
                 tripData: trip.tripData,
-                tripPlan: JSON.stringify(trip.tripPlan ,null,2),
+                tripPlan: JSON.stringify(trip.tripPlan, null, 2),
               },
             })
           }

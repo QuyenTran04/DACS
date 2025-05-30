@@ -1,5 +1,5 @@
 import { View, Text, Image } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
 import CustomButton from "../CustomButton";
 import UserTripCard from "./UserTripCard";
@@ -12,10 +12,8 @@ const UserTripList = ({ userTrips }: { userTrips: any[] }) => {
   const sortedTrips = [...userTrips].sort((a, b) => {
     const aData = JSON.parse(a.tripData);
     const bData = JSON.parse(b.tripData);
-
     const aStartDate = aData.find((item: any) => item.dates)?.dates?.startDate;
     const bStartDate = bData.find((item: any) => item.dates)?.dates?.startDate;
-
     return moment(aStartDate).valueOf() - moment(bStartDate).valueOf();
   });
 
@@ -32,20 +30,52 @@ const UserTripList = ({ userTrips }: { userTrips: any[] }) => {
     ?.travelers?.type;
 
   const isPastTrip = moment().isAfter(moment(endDate));
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const fetchUnsplashImage = async (query: string) => {
+    try {
+      const response = await fetch(
+        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+          query + " travel landscape"
+        )}&client_id=${process.env.EXPO_PUBLIC_UNSPLASH_ACCESS_KEY}`
+      );
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        const url = data.results[0].urls.small;
+        await Image.prefetch(url);
+        return url;
+      }
+    } catch (error) {
+      console.error("Error fetching Unsplash image:", error);
+    }
+    return "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"; // fallback
+  };
+  useEffect(() => {
+    const loadImage = async () => {
+      if (locationInfo) {
+        const url = await fetchUnsplashImage(locationInfo);
+        setImageUrl(url);
+      }
+    };
+    loadImage();
+  }, [locationInfo]);
+
+
 
   return (
     <View className="mb-16">
       <View>
-        {locationInfo?.photoRef && (
-          <Image
-            source={{
-              uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${locationInfo?.photoRef}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAP_KEY}`,
-            }}
-            className={`w-full h-60 rounded-2xl mt-5 ${
-              isPastTrip ? "grayscale" : ""
-            }`}
-          />
-        )}
+        <View className="w-full h-60 rounded-2xl mt-5 overflow-hidden">
+          {imageUrl ? (
+            <Image
+              source={{ uri: imageUrl }}
+              className={`w-full h-full ${isPastTrip ? "grayscale" : ""}`}
+            />
+          ) : (
+            <View className="w-full h-full bg-gray-200 items-center justify-center">
+              <Text>Loading...</Text>
+            </View>
+          )}
+        </View>
         <View className="mt-3">
           <Text
             className={`font-outfit-medium text-xl ${
