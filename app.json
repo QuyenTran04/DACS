@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
-    "deepLinking": true,
+    
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -22,7 +22,21 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.dacs_mobileapp.Quyenne"
+      "package": "com.dacs_mobileapp.Quyenne",
+      "intentFilters": [
+    {
+      "action": "VIEW",
+      "data": [
+        {
+          "scheme": "myapp"
+        }
+      ],
+      "category": [
+        "BROWSABLE",
+        "DEFAULT"
+      ]
+    }
+  ]
     },
     "web": {
       "bundler": "metro",

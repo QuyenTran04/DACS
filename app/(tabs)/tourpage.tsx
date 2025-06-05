@@ -12,8 +12,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Animated,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+
+const PRIMARY = "#8b5cf6";
+const SECONDARY = "#f39c12";
+const BG = "#f8f7fa";
 
 const TourPage = () => {
   const headerHeight = useHeaderHeight();
@@ -23,7 +28,6 @@ const TourPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isNavigating, setIsNavigating] = useState<boolean>(false);
 
-  // Reset isNavigating mỗi khi màn hình được focus (quay lại)
   useFocusEffect(
     useCallback(() => {
       setIsNavigating(false);
@@ -58,40 +62,91 @@ const TourPage = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const renderTour = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => {
-        setIsNavigating(true);
-        router.push({
-          pathname: "/bookingTour/TourDetailScreen",
-          params: { tourId: item._id },
-        });
-      }}
-      disabled={isNavigating} // Disable khi đang navigating để tránh nhấn liên tục
-    >
-      <Image
-        source={{ uri: item.image || "https://via.placeholder.com/150" }}
-        style={styles.image}
-      />
-      <Text style={styles.title}>{item.title}</Text>
+  // Hiệu ứng nhấn card
+  const renderTour = ({ item }: { item: any }) => {
+    const scaleAnim = new Animated.Value(1);
 
-      <View style={styles.locationRow}>
-        <Ionicons
-          name="location-outline"
-          size={16}
-          color="#888"
-          style={{ marginRight: 6 }}
-        />
-        <Text style={styles.description}>
-          {item.location?.name || "Không có thông tin"}
-        </Text>
-      </View>
+    const onPressIn = () =>
+      Animated.spring(scaleAnim, {
+        toValue: 0.97,
+        useNativeDriver: true,
+      }).start();
+    const onPressOut = () =>
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
 
-      <Text style={styles.price}>Giá: {item.price.toLocaleString()} VND</Text>
-      <Text style={styles.linkDetail}>Xem chi tiết →</Text>
-    </TouchableOpacity>
-  );
+    return (
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.85}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          onPress={() => {
+            setIsNavigating(true);
+            router.push({
+              pathname: "/bookingTour/TourDetailScreen",
+              params: { tourId: item._id },
+            });
+          }}
+          disabled={isNavigating}
+        >
+          {/* Card Image with Tag & Price */}
+          <View style={styles.imageWrapper}>
+            <Image
+              source={{
+                uri: item.image || "https://via.placeholder.com/300x180",
+              }}
+              style={styles.image}
+            />
+            {/* Tag danh mục */}
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>{item.category || "Tour"}</Text>
+            </View>
+            {/* Giá overlay */}
+            <View style={styles.priceOverlay}>
+              <Ionicons name="pricetag" size={15} color="#fff" />
+              <Text style={styles.priceOverlayText}>
+                {item.price.toLocaleString()} đ
+              </Text>
+            </View>
+          </View>
+          {/* Nội dung */}
+          <Text numberOfLines={1} style={styles.title}>
+            {item.title}
+          </Text>
+          <View style={styles.locationRow}>
+            <Ionicons
+              name="location"
+              size={16}
+              color={PRIMARY}
+              style={{ marginRight: 5 }}
+            />
+            <Text style={styles.locationText}>
+              {item.location?.name || "Không có thông tin"}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.detailBtn}
+            onPress={() => {
+              setIsNavigating(true);
+              router.push({
+                pathname: "/bookingTour/TourDetailScreen",
+                params: { tourId: item._id },
+              });
+            }}
+            disabled={isNavigating}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.detailBtnText}>Xem chi tiết</Text>
+            <Ionicons name="chevron-forward" size={17} color="#fff" />
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   return (
     <>
@@ -119,46 +174,48 @@ const TourPage = () => {
       <View style={[styles.container, { paddingTop: headerHeight }]}>
         {(loading || isNavigating) && (
           <View style={styles.loadingOverlay}>
-            <Ionicons name="refresh" size={40} color="#8b5cf6" />
+            <Ionicons name="refresh" size={40} color={PRIMARY} />
             <Text style={styles.loadingText}>
               {loading ? "Đang tải dữ liệu..." : "Đang chuyển trang..."}
             </Text>
           </View>
         )}
-
         <FlatList
           data={filteredTours}
           keyExtractor={(item) => item._id}
           renderItem={renderTour}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: 40,
+            paddingHorizontal: 8,
+            paddingTop: 6,
+          }}
           ListHeaderComponent={
             <>
-              <Text style={styles.headingTxt}>Chọn tour theo danh mục</Text>
-
+              <Text style={styles.headingTxt}>Khám phá tour nổi bật</Text>
               <View style={styles.searchSectionWrapper}>
                 <View style={styles.searchBar}>
                   <Ionicons
                     name="search"
                     size={18}
                     style={styles.searchIcon}
-                    color="#8b5cf6"
+                    color={PRIMARY}
                   />
                   <TextInput
-                    placeholder="Tìm kiếm..."
+                    placeholder="Tìm kiếm điểm đến, tour, danh mục..."
                     style={styles.searchInput}
                     value={searchTerm}
                     onChangeText={setSearchTerm}
+                    placeholderTextColor="#aaa"
                   />
                 </View>
                 <TouchableOpacity onPress={() => {}} style={styles.filterBtn}>
-                  <Ionicons name="options" size={28} color="#ffffff" />
+                  <Ionicons name="options" size={26} color="#fff" />
                 </TouchableOpacity>
               </View>
-
               <CategoryButtons onCategoryChanged={onCatChanged} />
             </>
           }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 30 }}
           ListEmptyComponent={() =>
             !loading ? (
               <Text style={styles.emptyText}>Không có tour nào phù hợp.</Text>
@@ -175,31 +232,39 @@ export default TourPage;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: BG,
   },
   headingTxt: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#333",
-    marginTop: 20,
-    marginBottom: 10,
-    textAlign: "center",
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#22223b",
+    marginTop: 16,
+    marginBottom: 6,
+    textAlign: "left",
+    paddingLeft: 16,
+    letterSpacing: 0.5,
   },
   searchSectionWrapper: {
     flexDirection: "row",
-    marginVertical: 16,
+    marginVertical: 10,
+    marginBottom: 16,
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 10,
   },
   searchBar: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: "#f1f1f1",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 30,
+    backgroundColor: "#fff",
+    paddingHorizontal: 18,
+    paddingVertical: 13,
+    borderRadius: 28,
     alignItems: "center",
+    shadowColor: "#8b5cf6",
+    shadowOpacity: 0.11,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 7,
+    elevation: 2,
   },
   searchIcon: {
     marginRight: 10,
@@ -211,87 +276,159 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   filterBtn: {
-    backgroundColor: "#8b5cf6",
+    backgroundColor: PRIMARY,
     padding: 12,
-    borderRadius: 30,
+    borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 10,
+    marginLeft: 14,
+    shadowColor: "#8b5cf6",
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 2,
   },
   notificationBtn: {
     marginRight: 20,
-    backgroundColor: "#8b5cf6",
+    backgroundColor: PRIMARY,
     padding: 10,
-    borderRadius: 12,
+    borderRadius: 14,
     shadowColor: "#171717",
     shadowOffset: { width: 2, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
-  loadingText: {
-    color: "#8b5cf6",
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 10,
-  },
-  emptyText: {
-    color: "#999",
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 40,
+    shadowOpacity: 0.16,
+    shadowRadius: 4,
   },
   avatarWrapper: {
     marginLeft: 20,
   },
   avatarImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 42,
+    height: 42,
+    borderRadius: 16,
+  },
+  loadingText: {
+    color: PRIMARY,
+    fontSize: 17,
+    textAlign: "center",
+    marginTop: 10,
+    fontWeight: "600",
+  },
+  emptyText: {
+    color: "#9e9e9e",
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 38,
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 22,
     marginBottom: 20,
-    padding: 15,
+    marginHorizontal: 7,
+    padding: 0,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.09,
+    shadowRadius: 8,
+    elevation: 3,
+    overflow: "hidden",
+  },
+  imageWrapper: {
+    position: "relative",
+    width: "100%",
+    height: 178,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    overflow: "hidden",
+    backgroundColor: "#e8eaf6",
+    marginBottom: 5,
   },
   image: {
     width: "100%",
-    height: 180,
-    borderRadius: 12,
-    marginBottom: 12,
+    height: "100%",
     resizeMode: "cover",
-    backgroundColor: "#e0e0e0",
+  },
+  tag: {
+    position: "absolute",
+    top: 13,
+    left: 13,
+    backgroundColor: PRIMARY,
+    paddingHorizontal: 11,
+    paddingVertical: 4,
+    borderRadius: 18,
+    zIndex: 2,
+    shadowColor: "#8b5cf6",
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+  },
+  tagText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 12,
+  },
+  priceOverlay: {
+    position: "absolute",
+    right: 13,
+    bottom: 13,
+    flexDirection: "row",
+    backgroundColor: SECONDARY,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 16,
+    alignItems: "center",
+    shadowColor: "#f39c12",
+    shadowOpacity: 0.18,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+  },
+  priceOverlayText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 15,
+    marginLeft: 5,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#222",
-    marginBottom: 4,
+    fontSize: 19,
+    fontWeight: "800",
+    color: "#23235b",
+    marginTop: 6,
+    marginHorizontal: 18,
+    marginBottom: 2,
+    letterSpacing: 0.1,
   },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6,
+    marginLeft: 18,
+    marginBottom: 7,
   },
-  description: {
-    color: "#777",
-    fontSize: 14,
-  },
-  price: {
-    color: "#f39c12",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  linkDetail: {
-    marginTop: 6,
-    color: "#8b5cf6",
-    fontSize: 14,
+  locationText: {
+    color: PRIMARY,
+    fontSize: 15,
     fontWeight: "500",
+  },
+  detailBtn: {
+    marginHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 15,
+    paddingVertical: 9,
+    borderRadius: 18,
+    backgroundColor: PRIMARY,
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    paddingHorizontal: 16,
+    shadowColor: "#8b5cf6",
+    shadowOpacity: 0.16,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 7,
+    elevation: 2,
+  },
+  detailBtnText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "700",
+    marginRight: 7,
   },
   loadingOverlay: {
     position: "absolute",
@@ -299,9 +436,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(255,255,255,0.8)",
+    backgroundColor: "rgba(255,255,255,0.85)",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 10,
+    zIndex: 100,
   },
 });

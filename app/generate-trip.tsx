@@ -100,9 +100,10 @@ Hãy trả kết quả dưới dạng **JSON hợp lệ**, đúng cấu trúc b�
 - Không sử dụng placeholder như “TBD”, “đang cập nhật”, v.v.
 - Tất cả URL ảnh và bookingURL phải là chuỗi URL hợp lệ và chính xác có trên internet.
 - Tất cả địa chỉ, tên địa điểm, khách sạn, hãng bay phải là thông tin thực tế và chính xác có trên google map.
+- có ít nhất 2 khách sạn 
 - Tất cả giá tiền để dạng số không có dấu chấm phân cách (VD: 1500000).
 - Không được bỏ trống trường "flights", luôn trả về ít nhất 1 chuyến bay phù hợp.
-Không tạo URL ảnh giả, trả về URL ảnh đại diện chuẩn (ví dụ dùng https://source.unsplash.com/featured/?{tên địa danh})
+Không tạo URL ảnh giả, trả về URL ảnh đại diện chuẩn (ví dụ dùng https://image-tc.galaxy.tf/wijpeg-1n8c7t9k6mxea1b9dxrd4ubzd/hanoi-top-10-attractions.jpg?width=1920)
 `;
 
 

@@ -10,16 +10,16 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Picker } from "@react-native-picker/picker";
 import moment from "moment";
 import CustomButton from "@/components/CustomButton";
 
+// Interface
 interface Coordinates {
   latitude: number;
   longitude: number;
 }
 
-interface attractions {
+interface Attraction {
   name: string;
   description: string;
   imageUrl: string;
@@ -29,14 +29,14 @@ interface attractions {
 }
 
 interface Hotel {
-  hotelName: string;
+  name: string;
   address: string;
   price: number | string;
   imageUrl: string;
   coordinates: Coordinates;
   rating: number | string;
   description: string;
-  nearbyAttractions: attractions[];
+  attractions?: Attraction[]; // Optional, in case you want to expand in future
 }
 
 interface Flight {
@@ -69,12 +69,12 @@ interface TripPlan {
   flights?: Flight[];
   hotels?: Hotel[];
   itinerary?: ItineraryDay[];
+  attractions?: Attraction[];
 }
 
+// Helpers
 const formatDateTime = (input: string) => {
   if (!input || typeof input !== "string") return "Invalid Time";
-
-  // Nếu đã là chuỗi ISO (có "T")
   if (input.includes("T")) {
     const date = new Date(input);
     return isNaN(date.getTime())
@@ -84,17 +84,13 @@ const formatDateTime = (input: string) => {
           timeStyle: "short",
         });
   }
-
-  // Nếu chỉ là chuỗi giờ dạng "08:00"
   const timeRegex = /^\d{2}:\d{2}$/;
   if (timeRegex.test(input)) {
-    // Thêm ngày giả để parse được
     const mockDate = new Date(`2025-01-01T${input}:00`);
     return isNaN(mockDate.getTime())
       ? "Invalid Time"
       : mockDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
-
   return "Invalid Time";
 };
 
@@ -103,55 +99,53 @@ const openMap = (latitude: number, longitude: number) => {
   Linking.openURL(url);
 };
 
+// Component
 const Discover: React.FC = () => {
   const { tripPlan, tripData } = useLocalSearchParams<{
     tripPlan: string;
     tripData: string;
   }>();
 
-  
   const [plan, setPlan] = useState<TripPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [departureAirport, setDepartureAirport] = useState<string>("");
+
   useEffect(() => {
     if (!tripPlan) return;
     try {
       const parsedPlan = JSON.parse(tripPlan);
       const planData = parsedPlan.trip ?? parsedPlan;
 
-      const parsedTripData = tripData ? JSON.parse(tripData) : [];
+      // Convert images for hotels & attractions
+      const hotels = (planData.hotels || []).map((hotel: any) => ({
+        ...hotel,
+        imageUrl: hotel.image || hotel.imageUrl,
+        coordinates: {
+          latitude: Number(hotel.coordinates.latitude),
+          longitude: Number(hotel.coordinates.longitude),
+        },
+      }));
 
-      const locationInfo = parsedTripData?.find(
-        (d: any) => d.locationInfo
-      )?.locationInfo;
-      const startDate = parsedTripData?.find((d: any) => d.dates)?.dates
-        ?.startDate;
-      const endDate = parsedTripData?.find((d: any) => d.dates)?.dates?.endDate;
-      const travelers = parsedTripData?.find(
-        (d: any) => d.travelers
-      )?.travelers;
-      const budget = parsedTripData?.find((d: any) => d.budget)?.budget;
-
-      const durationInDays =
-        startDate && endDate
-          ? moment(endDate).diff(moment(startDate), "days") + 1
-          : null;
+      const attractions = (planData.attractions || []).map((att: any) => ({
+        ...att,
+        imageUrl: att.image || att.imageUrl,
+        coordinates: {
+          latitude: Number(att.coordinates.latitude),
+          longitude: Number(att.coordinates.longitude),
+        },
+      }));
 
       const safePlan: TripPlan = {
-        destination: locationInfo?.name ?? planData.destination ?? "Không rõ",
-        duration: durationInDays ? `${durationInDays} ngày` : "",
-        travelers: planData.travelers ?? travelers?.count ?? "Không rõ",
-        budget: planData.budget ?? budget?.type ?? "Không rõ",
-        flights: planData.flights ?? [],
-        hotels: planData.hotels ?? [],
-        itinerary: planData.itinerary ?? [],
+        ...planData,
+        hotels,
+        attractions,
+        flights: planData.flights || [],
+        itinerary: planData.itinerary || [],
       };
 
-      
       setPlan(safePlan);
       if (Array.isArray(safePlan.flights) && safePlan.flights.length > 0) {
         const airport = safePlan.flights[0]?.departureAirport;
-        console.log("airport", airport);
         if (airport) {
           setDepartureAirport(airport);
         }
@@ -181,7 +175,6 @@ const Discover: React.FC = () => {
     );
   }
 
-
   return (
     <ScrollView
       className="flex-1 bg-white"
@@ -202,8 +195,6 @@ const Discover: React.FC = () => {
       {Array.isArray(plan.flights) && plan.flights.length > 0 && (
         <View className="mb-8">
           <Text className="text-2xl font-bold mb-4">Chi tiết chuyến bay</Text>
-          
-
           {plan.flights.map((f, i) => (
             <View
               key={i}
@@ -252,7 +243,7 @@ const Discover: React.FC = () => {
                 />
               )}
 
-              <Text className="font-bold text-lg">{hotel.hotelName}</Text>
+              <Text className="font-bold text-lg">{hotel.name}</Text>
               <Text>{hotel.address}</Text>
               <Text>Giá: {String(hotel.price)}</Text>
               <Text>Đánh giá: {String(hotel.rating)} ⭐</Text>
@@ -267,43 +258,42 @@ const Discover: React.FC = () => {
                 }
                 className="mt-4"
               />
-              {Array.isArray(hotel.nearbyAttractions) && (
-                <>
-                  <Text className="font-bold text-lg mt-6 mb-2">
-                    Điểm tham quan gần đó
-                  </Text>
-                  {hotel.nearbyAttractions.map((att, j) => (
-                    <View
-                      key={j}
-                      className="flex-row items-center bg-white p-3 rounded-lg mb-3 border border-gray-200"
-                    >
-                      {att.imageUrl && (
-                        <Image
-                          source={{ uri: att.imageUrl }}
-                          className="w-16 h-16 rounded-lg mr-3"
-                        />
-                      )}
-                      <View style={{ flex: 1 }}>
-                        <Text className="font-semibold">{att.name}</Text>
-                        <Text>{att.description}</Text>
-                        <Text>Giá: {String(att.price)}</Text>
-                        <Text>Thời gian di chuyển: {att.travelTime}</Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={() =>
-                          openMap(
-                            att.coordinates.latitude,
-                            att.coordinates.longitude
-                          )
-                        }
-                        className="p-2 bg-purple-500 rounded-lg"
-                      >
-                        <Ionicons name="navigate" size={20} color="white" />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* Attractions ngoài hotel */}
+      {Array.isArray(plan.attractions) && plan.attractions.length > 0 && (
+        <View className="mb-8">
+          <Text className="text-2xl font-bold mb-4">
+            Điểm tham quan nổi bật
+          </Text>
+          {plan.attractions.map((att, j) => (
+            <View
+              key={j}
+              className="flex-row items-center bg-white p-3 rounded-lg mb-3 border border-gray-200"
+            >
+              {att.imageUrl && (
+                <Image
+                  source={{ uri: att.imageUrl }}
+                  className="w-16 h-16 rounded-lg mr-3"
+                />
               )}
+              <View style={{ flex: 1 }}>
+                <Text className="font-semibold">{att.name}</Text>
+                <Text>{att.description}</Text>
+                <Text>Giá: {String(att.price)}</Text>
+                <Text>Thời gian di chuyển: {att.travelTime}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() =>
+                  openMap(att.coordinates.latitude, att.coordinates.longitude)
+                }
+                className="p-2 bg-purple-500 rounded-lg"
+              >
+                <Ionicons name="navigate" size={20} color="white" />
+              </TouchableOpacity>
             </View>
           ))}
         </View>

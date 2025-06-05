@@ -18,7 +18,6 @@ const bookingSchema = new mongoose.Schema(
     },
     note: { type: String, default: "" },
 
-    // ✅ Thêm các trường thông tin liên hệ
     contactInfo: {
       fullName: { type: String, required: true },
       phoneNumber: { type: String, required: true },
