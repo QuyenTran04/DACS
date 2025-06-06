@@ -46,7 +46,7 @@ export default function MomoRedirectScreen() {
   useEffect(() => {
     // 1. Nếu app khởi động từ deep link
     Linking.getInitialURL().then((url) => {
-      console.log("Initial URL:", url);
+      //console.log("Initial URL:", url);
       handleDeepLink(url);
     });
 

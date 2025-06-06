@@ -44,7 +44,7 @@ const BookingHistoryScreen = () => {
         const token = await user.getIdToken();
 
         const res = await axios.get(
-          "http://192.168.3.21:5000/api/booking/History",
+          "http://172.20.10.3:5000/api/booking/History",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
