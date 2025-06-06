@@ -8,13 +8,18 @@ import {
   TextInput,
   ScrollView,
   Linking,
-} from "react-native";  
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
 import { Picker } from "@react-native-picker/picker";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const POINT_PER_GUEST = 960;
+const PRIMARY = "#8b5cf6";
+const SECONDARY = "#f59e42";
 
 const BookingScreen = () => {
   const { tourId, selectedDate } = useLocalSearchParams();
@@ -24,25 +29,21 @@ const BookingScreen = () => {
   const [loading, setLoading] = useState(false);
   const [tourPrice, setTourPrice] = useState(0);
   const [tourDetailsLoading, setTourDetailsLoading] = useState(true);
-
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTourDetails = async () => {
       try {
         const response = await axios.get(
-          `http://192.168.1.8:5000/api/tour/getTour/${tourId}`
+          `http://172.20.10.3:5000/api/tour/getTour/${tourId}`
         );
         const priceFromServer = Number(response.data.tour?.price);
-        if (!isNaN(priceFromServer)) {
-          setTourPrice(priceFromServer);
-        } else {
-          throw new Error("Giá tour không hợp lệ");
-        }
+        if (!isNaN(priceFromServer)) setTourPrice(priceFromServer);
+        else throw new Error("Giá tour không hợp lệ");
       } catch (error) {
-        console.error("Lỗi khi lấy thông tin tour:", error);
         Alert.alert(
           "Lỗi",
           "Không thể lấy thông tin tour hoặc giá không hợp lệ."
@@ -52,7 +53,6 @@ const BookingScreen = () => {
         setTourDetailsLoading(false);
       }
     };
-
     fetchTourDetails();
   }, [tourId]);
 
@@ -61,17 +61,12 @@ const BookingScreen = () => {
       Alert.alert("Thiếu thông tin", "Vui lòng chọn tour và ngày hợp lệ.");
       return;
     }
-
     if (numberOfGuests <= 0) {
       Alert.alert("Lỗi", "Số lượng khách phải lớn hơn 0.");
       return;
     }
-
     if (!fullName || !phoneNumber || !contactEmail) {
-      Alert.alert(
-        "Thiếu thông tin",
-        "Vui lòng nhập đầy đủ họ tên, số điện thoại và email."
-      );
+      Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ thông tin.");
       return;
     }
 
@@ -79,16 +74,13 @@ const BookingScreen = () => {
       setLoading(true);
       const auth = getAuth();
       const user = auth.currentUser;
-
       if (!user) {
         Alert.alert("Lỗi", "Vui lòng đăng nhập trước khi đặt tour.");
         return;
       }
-
       const idToken = await user.getIdToken();
-
       const response = await axios.post(
-        "http://192.168.1.8:5000/api/booking",
+        "http://172.20.10.3:5000/api/booking",
         {
           tourId,
           selectedDate,
@@ -100,266 +92,342 @@ const BookingScreen = () => {
           email: contactEmail,
         },
         {
-          headers: {
-            Authorization: `Bearer ${idToken}`,
-          },
+          headers: { Authorization: `Bearer ${idToken}` },
         }
       );
-
       if (response.data.payUrl) {
-        // Nếu là Momo, mở URL thanh toán
-        Alert.alert(
-          "Chuyển đến Momo",
-          "Đang chuyển hướng đến cổng thanh toán..."
-          );
-          Linking.openURL(response.data.payUrl);
-        // hoặc bạn có thể sử dụng Linking.openURL(response.data.payUrl);
+        Linking.openURL(response.data.payUrl);
       } else {
         Alert.alert("Thành công", "Bạn đã đặt tour thành công!");
       }
     } catch (err) {
-      console.error("Lỗi đặt tour:", err);
-      Alert.alert(
-        "Lỗi",
-        `Không thể đặt tour. Lỗi: ${
-          err.response?.data?.message || "Vui lòng thử lại."
-        }`
-      );
+      Alert.alert("Lỗi", err.response?.data?.message || "Đặt tour thất bại.");
     } finally {
       setLoading(false);
     }
   };
 
-  const increaseGuests = () => setNumberOfGuests(numberOfGuests + 1);
-  const decreaseGuests = () =>
-    setNumberOfGuests(Math.max(1, numberOfGuests - 1));
-
   const totalPrice = isNaN(tourPrice) ? 0 : tourPrice * numberOfGuests;
   const totalPoints = POINT_PER_GUEST * numberOfGuests;
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <Text style={styles.title}>Vé tham quan</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#fafbff" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>🛫 Đặt vé tham quan</Text>
 
-        <Text style={styles.label}>Ngày sử dụng:</Text>
-        <Text style={styles.value}>{selectedDate}</Text>
+        <Label
+          icon={<Ionicons name="calendar" size={18} color={PRIMARY} />}
+          label="Ngày sử dụng"
+          value={selectedDate}
+        />
 
-        <Text style={styles.label}>Số lượng khách:</Text>
+        <Text style={styles.label}>Số lượng khách</Text>
         <View style={styles.counterRow}>
-          <TouchableOpacity style={styles.counterBtn} onPress={decreaseGuests}>
-            <Text style={styles.counterText}>−</Text>
+          <TouchableOpacity
+            style={styles.counterBtn}
+            onPress={() => setNumberOfGuests(Math.max(1, numberOfGuests - 1))}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="remove" size={22} color={PRIMARY} />
           </TouchableOpacity>
           <Text style={styles.quantity}>{numberOfGuests}</Text>
-          <TouchableOpacity style={styles.counterBtn} onPress={increaseGuests}>
-            <Text style={styles.counterText}>+</Text>
+          <TouchableOpacity
+            style={styles.counterBtn}
+            onPress={() => setNumberOfGuests(numberOfGuests + 1)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="add" size={22} color={PRIMARY} />
           </TouchableOpacity>
         </View>
 
         {tourDetailsLoading ? (
-          <Text style={styles.value}>Đang tải thông tin tour...</Text>
+          <View style={styles.priceBox}>
+            <Text style={styles.value}>Đang tải giá...</Text>
+          </View>
         ) : (
-          <View style={styles.priceRow}>
-            <Text style={styles.priceText}>
-              {totalPrice.toLocaleString()} VND
-            </Text>
-            <Text style={styles.pointsText}>🎁 Nhận {totalPoints} Xu</Text>
+          <View style={styles.priceBox}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 3,
+              }}
+            >
+              <MaterialCommunityIcons
+                name="ticket-percent-outline"
+                size={20}
+                color={SECONDARY}
+              />
+              <Text style={styles.priceText}>
+                {totalPrice.toLocaleString()} VND
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Ionicons name="gift" size={18} color={PRIMARY} />
+              <Text style={styles.pointsText}>{totalPoints} điểm thưởng</Text>
+            </View>
           </View>
         )}
 
-        <Text style={styles.label}>Họ tên người đặt:</Text>
-        <TextInput
-          style={styles.input}
+        <Input
+          label="Họ tên người đặt"
           value={fullName}
-          onChangeText={setFullName}
-          placeholder="Nhập họ tên"
+          onChange={setFullName}
+          icon={<Ionicons name="person" size={18} color={PRIMARY} />}
         />
-
-        <Text style={styles.label}>Số điện thoại:</Text>
-        <TextInput
-          style={styles.input}
+        <Input
+          label="Số điện thoại"
           value={phoneNumber}
-          onChangeText={setPhoneNumber}
-          placeholder="Nhập số điện thoại"
+          onChange={setPhoneNumber}
           keyboardType="phone-pad"
+          icon={<Ionicons name="call" size={18} color={PRIMARY} />}
         />
-
-        <Text style={styles.label}>Email liên hệ:</Text>
-        <TextInput
-          style={styles.input}
+        <Input
+          label="Email liên hệ"
           value={contactEmail}
-          onChangeText={setContactEmail}
-          placeholder="Nhập email"
+          onChange={setContactEmail}
           keyboardType="email-address"
+          icon={<Ionicons name="mail" size={18} color={PRIMARY} />}
         />
-
-        <Text style={styles.label}>Ghi chú:</Text>
-        <TextInput
-          style={[styles.input, { height: 80 }]}
-          multiline
+        <Input
+          label="Ghi chú"
           value={note}
-          onChangeText={setNote}
-          placeholder="Ví dụ: muốn đón ở khách sạn..."
+          onChange={setNote}
+          multiline
+          icon={<Ionicons name="document-text" size={18} color={PRIMARY} />}
         />
 
-        <Text style={styles.label}>Phương thức thanh toán:</Text>
+        <Text style={styles.label}>Phương thức thanh toán</Text>
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={paymentMethod}
             onValueChange={setPaymentMethod}
+            style={{ color: PRIMARY, fontWeight: "700" }}
           >
-            <Picker.Item label="Tiền mặt" value="cash" />
-            <Picker.Item label="Momo" value="momo" />
+            <Picker.Item label="💵 Tiền mặt tại quầy" value="cash" />
+            <Picker.Item label="📱 Ví Momo (QR, thẻ...)" value="momo" />
           </Picker>
         </View>
-
-        <Text style={styles.notice}>
-          🔒 Không thể hoàn tiền • Không thể đổi lịch
-        </Text>
       </ScrollView>
 
+      {/* Thanh total + nút đặt nổi, đổ bóng */}
       <View style={styles.bottomBar}>
         <View>
-          <Text style={styles.totalLabel}>Tổng giá</Text>
+          <Text style={styles.totalLabel}>Tổng cộng</Text>
           <Text style={styles.totalPrice}>
             {totalPrice.toLocaleString()} VND
           </Text>
         </View>
         <TouchableOpacity
-          style={styles.bookButton}
+          style={[styles.bookButton, loading && { opacity: 0.65 }]}
           onPress={handleBooking}
           disabled={loading}
+          activeOpacity={0.85}
         >
           <Text style={styles.bookButtonText}>
             {loading ? "Đang xử lý..." : "Đặt ngay"}
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 export default BookingScreen;
 
+// Label có icon
+const Label = ({ icon, label, value }) => (
+  <View style={styles.labelRow}>
+    {icon}
+    <Text style={styles.label}>{label}</Text>
+    <Text style={styles.value}>{value}</Text>
+  </View>
+);
+
+// Input đẹp có icon
+const Input = ({
+  label,
+  value,
+  onChange,
+  multiline = false,
+  keyboardType = "default",
+  icon,
+}) => (
+  <View style={styles.inputWrapper}>
+    <View style={styles.inputLabelRow}>
+      {icon}
+      <Text style={styles.label}>{label}</Text>
+    </View>
+    <TextInput
+      style={[
+        styles.input,
+        multiline && { height: 80, textAlignVertical: "top" },
+      ]}
+      value={value}
+      onChangeText={onChange}
+      placeholder={`Nhập ${label.toLowerCase()}`}
+      placeholderTextColor="#a5a5b3"
+      keyboardType={keyboardType}
+      multiline={multiline}
+    />
+  </View>
+);
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fefefe",
-  },
+  scrollContent: { padding: 22, paddingBottom: 170 },
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginHorizontal: 20,
-    color: "#333",
+    fontSize: 25,
+    fontWeight: "800",
+    color: "#23235b",
+    marginBottom: 24,
+  },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 18,
+    gap: 8,
   },
   label: {
-    marginTop: 20,
-    marginHorizontal: 20,
     fontSize: 16,
-    fontWeight: "600",
-    color: "#555",
+    fontWeight: "700",
+    color: "#333",
   },
   value: {
-    marginTop: 8,
-    marginHorizontal: 20,
+    marginLeft: 10,
     fontSize: 16,
-    color: "#000",
+    color: "#3b3d56",
+    fontWeight: "600",
   },
+  inputWrapper: { marginTop: 17 },
+  inputLabelRow: { flexDirection: "row", alignItems: "center", gap: 7 },
   input: {
-    marginTop: 10,
-    marginHorizontal: 20,
+    marginTop: 8,
     backgroundColor: "#fff",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1.4,
+    borderColor: "#e7e6f5",
+    padding: 14,
+    fontSize: 16,
+    color: "#23235b",
+    shadowColor: "#e7e6f5",
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
   },
   pickerContainer: {
-    marginTop: 10,
-    marginHorizontal: 20,
+    marginTop: 12,
+    borderRadius: 14,
+    borderWidth: 1.4,
+    borderColor: "#e7e6f5",
     backgroundColor: "#fff",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    overflow: "hidden",
   },
   counterRow: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    justifyContent: "center",
+    gap: 25,
+    marginTop: 12,
+    marginBottom: 0,
   },
   counterBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ccc",
+    width: 48,
+    height: 48,
+    borderRadius: 100,
+    backgroundColor: "#f5f5fa",
     justifyContent: "center",
     alignItems: "center",
-  },
-  counterText: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#555",
+    shadowColor: "#bcbcf2",
+    shadowOpacity: 0.16,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 1,
   },
   quantity: {
-    marginHorizontal: 20,
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#3b3d56",
+    minWidth: 38,
+    textAlign: "center",
   },
-  priceRow: {
-    marginTop: 20,
-    marginHorizontal: 20,
+  priceBox: {
+    marginTop: 18,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 18,
+    borderColor: "#e7e6f5",
+    borderWidth: 1.3,
+    shadowColor: "#e7e6f5",
+    shadowOpacity: 0.11,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 9,
+    marginBottom: 8,
   },
   priceText: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: "bold",
-    color: "#f97316",
+    color: SECONDARY,
+    marginLeft: 7,
   },
   pointsText: {
-    marginTop: 4,
-    color: "#999",
-    fontSize: 14,
-  },
-  notice: {
-    marginTop: 30,
-    marginHorizontal: 20,
-    fontSize: 14,
-    color: "#888",
-    textAlign: "center",
+    marginLeft: 8,
+    fontSize: 15,
+    color: PRIMARY,
+    fontWeight: "700",
   },
   bottomBar: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
     padding: 16,
-    borderTopWidth: 1,
-    borderColor: "#eee",
+    borderTopWidth: 1.5,
+    borderColor: "#f2eaff",
+    backgroundColor: "#fff",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    shadowColor: "#a7a1ff",
+    shadowOpacity: 0.13,
+    shadowOffset: { width: 0, height: -3 },
+    shadowRadius: 11,
+    elevation: 14,
+    zIndex: 99,
   },
   totalLabel: {
-    color: "#999",
-    fontSize: 14,
+    fontSize: 15,
+    color: "#878bad",
+    fontWeight: "600",
   },
   totalPrice: {
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: "bold",
-    color: "#f97316",
+    color: SECONDARY,
+    marginTop: 2,
   },
   bookButton: {
-    backgroundColor: "#2563eb",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    backgroundColor: PRIMARY,
+    paddingVertical: 15,
+    paddingHorizontal: 38,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 2,
+    shadowColor: PRIMARY,
+    shadowOpacity: 0.14,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 8,
   },
   bookButtonText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 17,
+    letterSpacing: 0.2,
   },
 });

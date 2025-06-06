@@ -13,12 +13,11 @@ const bookingSchema = new mongoose.Schema(
     selectedDate: { type: Date, required: true },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled"],
-      default: "pending",
+      enum: ["Không thành công", "Thành công", "Đã hủy"],
+      default: "Không thành công",
     },
     note: { type: String, default: "" },
 
-    // ✅ Thêm các trường thông tin liên hệ
     contactInfo: {
       fullName: { type: String, required: true },
       phoneNumber: { type: String, required: true },
@@ -34,8 +33,8 @@ const bookingSchema = new mongoose.Schema(
       },
       status: {
         type: String,
-        enum: ["unpaid", "paid", "failed"],
-        default: "unpaid",
+        enum: ["Chưa thanh toán", "Thành công", "Thất bại"],
+        default: "Chưa thanh toán",
       },
       transactionId: { type: String, default: "" },
     },

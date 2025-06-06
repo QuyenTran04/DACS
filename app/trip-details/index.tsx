@@ -39,34 +39,35 @@ const TripDetails = () => {
         </Text>
 
         <View className="mt-4 space-y-2">
-          <Text className="text-lg font-outfit text-gray-600">
-            {moment(startDate).format("MMM D")} -{" "}
-            {moment(endDate).format("MMM D, YYYY")}
-          </Text>
-          <Text className="text-lg font-outfit text-gray-600">
-            Total Number of Days: {totalNumberOfDays}
-          </Text>
-          <Text className="text-lg font-outfit text-gray-600">
-            {travelers?.type} ({travelers?.count})
-          </Text>
-          <Text className="text-lg font-outfit text-gray-600">
-            Budget Type: {budget}
-          </Text>
-          <View className="flex mt-10 items-center justify-center">
-            <Text className="text-lg font-outfit-medium text-gray-600">
-              Want to see flights, hotel recommendations and more plan details?
-            </Text>
-          </View>
-        </View>
+    <Text className="text-lg font-outfit text-gray-600">
+      🗓 {moment(startDate).format("MMM D")} - {moment(endDate).format("MMM D, YYYY")}
+    </Text>
+    <Text className="text-lg font-outfit text-gray-600">
+      📆 {totalNumberOfDays} ngày
+    </Text>
+    <Text className="text-lg font-outfit text-gray-600">
+      👥 {travelers?.type} ({travelers?.count})
+    </Text>
+    <Text className="text-lg font-outfit text-gray-600">
+      💰 Ngân sách: {budget}
+    </Text>
 
+    <View className="flex mt-10 items-center justify-center">
+      <Text className="text-lg font-outfit-medium text-gray-600 text-center">
+        Want to see flights, hotel recommendations and more plan details?
+      </Text>
+    </View>
+  </View>
         <CustomButton
           title="Discover Location"
-          onPress={() =>
+          onPress={() =>{
+            console.log("tripPlan", tripPlan);
+            console.log("tripData", tripData);
             router.push({
               pathname: "/(tabs)/discover",
               params: { tripData, tripPlan },
             })
-          }
+          }}
           className="mt-7"
         />
       </View>

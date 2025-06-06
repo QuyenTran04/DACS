@@ -46,10 +46,10 @@ exports.createBooking = async (req, res) => {
       selectedDate,
       note,
       totalPrice,
-      status: paymentMethod === "cod" ? "confirmed" : "pending",
+      status: paymentMethod === "cod" ? "Thành công" : "Không thành công",
       payment: {
         method: paymentMethod,
-        status: "unpaid",
+        status: "Chưa thanh toán",
       },
       contactInfo: {
         fullName,
@@ -75,7 +75,7 @@ exports.createBooking = async (req, res) => {
         .createHmac("sha256", momoConfig.secretKey)
         .update(rawSignature)
         .digest("hex");
-
+      
       const momoRequest = {
         partnerCode: momoConfig.partnerCode,
         accessKey: momoConfig.accessKey,
